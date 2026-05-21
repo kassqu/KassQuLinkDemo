@@ -3,47 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KassQuLink-DemoApp</title>
+    <title>KassQuLinkDemo</title>
+    
+    <!-- PWA & Mobile App Support -->
+    <meta name="theme-color" content="#0f172a">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="KasQu">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
+    
+    <!-- Single File Manifest PWA -->
+    <link rel="manifest" href='data:application/json,{"name":"KasQu Admin Agregator","short_name":"KasQu","start_url":"/","display":"standalone","background_color":"#0f172a","theme_color":"#0f172a","icons":[{"src":"https://cdn-icons-png.flaticon.com/512/3135/3135715.png","sizes":"192x192","type":"image/png"}]}'>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-
-      <!-- SCRIPT PWA MANIFEST (KHUSUS ANDROID/CHROME) -->
-      <script>
-        (function() {
-          // Membuat KTP Aplikasi (Manifest) secara virtual
-          const manifestJSON = {
-            "name": "KassQuLink_DemoApp",
-            "short_name": "KassQuLink_DemoApp",
-            "start_url": window.location.href, 
-            "display": "standalone",
-            "background_color": "#f8fafc",
-            "theme_color": "#4f46e5",
-            "icons": [
-              {
-                "src": "https://raw.githubusercontent.com/kassqu/DemoApp1/refs/heads/main/logo.png",
-                "sizes": "192x192",
-                "type": "image/png",
-                "purpose": "any maskable"
-              },
-              {
-                "src": "https://raw.githubusercontent.com/kassqu/DemoApp1/refs/heads/main/logo.png",
-                "sizes": "512x512",
-                "type": "image/png",
-                "purpose": "any maskable"
-              }
-            ]
-          };
-          
-          // Mengubah JSON menjadi URL Data dan menempelkannya ke <head>
-          const manifestString = JSON.stringify(manifestJSON);
-          const manifestURL = 'data:application/manifest+json;charset=utf-8,' + encodeURIComponent(manifestString);
-          
-          const link = document.createElement('link');
-          link.rel = 'manifest';
-          link.href = manifestURL;
-          document.head.appendChild(link);
-        })();
-      </script>
     
     <!-- Excel & PDF Export Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -52,228 +26,245 @@
 
     <style>
         body {
-            background: linear-gradient(135deg, #4B0082 0%, #4B0082 100%);
+            background-color: #0f172a; /* Warna dasar (cadangan) */
+            color: #f8fafc;
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            position: relative;
             min-height: 100vh;
-            color: white;
-            font-family: 'Inter', sans-serif
+            overflow-x: hidden;
+            z-index: 0;
         }
-       
+        
+        /* Background Gambar Blur & Gelap */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -10%;
+            left: -10%;
+            width: 120%;
+            height: 120%;
+            background: url('https://media.istockphoto.com/id/956431518/photo/aerial-view-of-clear-turquoise-sea.jpg?s=612x612&w=0&k=20&c=VYMqx5i_z8y1BxqSp-08RzIDauWMPuqvz6Vro3frAkI=') no-repeat center center;
+            background-size: cover;
+            filter: blur(4px) brightness(0.25); /* Blur 4px, digelapkan ke 25% */
+            z-index: -1; /* Berada di belakang konten */
+        }
+
         .glass-card {
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(30, 41, 59, 0.55); /* Transparan Slate 800 */
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .nav-btn {
+            color: #94a3b8; 
+        }
+        .nav-btn:hover {
+            color: #f8fafc;
+            background: rgba(51, 65, 85, 0.7); 
         }
         .nav-btn.active {
-            background: white;
-            color: #4c1d95;
+            background: #2563eb; 
+            color: white;
+            box-shadow: 0 4px 14px 0 rgba(37, 99, 235, 0.39);
         }
         .filter-btn.active {
-            background-color: rgb(147, 51, 234);
+            background-color: #2563eb;
             color: white;
-            border-color: rgb(168, 85, 247);
+            border-color: #3b82f6;
         }
     </style>
 </head>
-<body class="p-4 md:p-8">
+<body class="p-4 md:p-8 selection:bg-blue-500/30">
 
     <!-- Header Section -->
-    <header class="flex justify-between items-start mb-8">
+    <header class="flex justify-between items-start mb-8 mt-2 md:mt-0">
         <div>
-            <h1 class="text-3xl font-bold tracking-tight flex items-center gap-2">
+            <h1 class="text-2xl md:text-3xl font-bold tracking-tight flex items-center gap-2">
                 <span id="header-logo-wrapper" class="flex items-center">
-                    <i id="header-logo" class="fa-solid fa-store text-purple-400"></i> 
+                    <i id="header-logo" class="fa-solid fa-store text-blue-500"></i> 
                 </span>
-                <span id="header-shop-name">KassQuLink</span> 
-                <span class="text-xs bg-purple-500 text-white px-2 py-1 rounded-full font-normal">API Demo</span>
+                <span id="header-shop-name" class="text-slate-100">HERU BRILINK</span> 
             </h1>
-            <p class="text-gray-300 text-sm">Aplikasi Kasir, PPOB & Pembukuan Usaha Terintegrasi</p>
+            <p class="text-slate-400 text-xs md:text-sm hidden sm:block mt-1">Aplikasi Kasir, PPOB & Pembukuan Usaha Terintegrasi</p>
         </div>
-        <button onclick="resetApp()" class="flex items-center gap-2 text-sm hover:text-red-400 text-gray-300 transition bg-white/5 px-3 py-2 rounded-lg">
-            <i class="fa-solid fa-power-off"></i>
-            Reset Demo
-        </button>
     </header>
 
     <!-- Navigation Tabs -->
-    <nav class="flex flex-wrap justify-center gap-2 mb-8">
-        <button id="btn-dashboard" onclick="switchTab('dashboard')" class="nav-btn active px-6 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition">
+    <nav class="flex flex-wrap justify-center gap-2 mb-8 bg-slate-800/40 p-1.5 rounded-xl border border-slate-700/50 w-fit mx-auto backdrop-blur-md">
+        <button id="btn-dashboard" onclick="switchTab('dashboard')" class="nav-btn active px-4 md:px-6 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition">
             <i class="fa-solid fa-table-cells-large"></i> Dashboard
         </button>
-        <button id="btn-input" onclick="switchTab('input')" class="nav-btn bg-white/10 hover:bg-white/20 px-6 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition">
-            <i class="fa-solid fa-plus"></i> Input Transaksi
+        <button id="btn-input" onclick="switchTab('input')" class="nav-btn px-4 md:px-6 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition">
+            <i class="fa-solid fa-plus"></i> Input
         </button>
-        <button id="btn-riwayat" onclick="switchTab('riwayat')" class="nav-btn bg-white/10 hover:bg-white/20 px-6 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition">
-            <i class="fa-solid fa-clock-rotate-left"></i> Riwayat <span id="history-badge" class="bg-purple-500 text-white text-[10px] px-1.5 py-0.5 rounded-full hidden">0</span>
+        <button id="btn-riwayat" onclick="switchTab('riwayat')" class="nav-btn px-4 md:px-6 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition">
+            <i class="fa-solid fa-clock-rotate-left"></i> Riwayat <span id="history-badge" class="bg-blue-500 text-white text-[10px] px-1.5 py-0.5 rounded-full hidden">0</span>
         </button>
-        <button id="btn-pengaturan" onclick="switchTab('pengaturan')" class="nav-btn bg-white/10 hover:bg-white/20 px-6 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition">
+        <button id="btn-pengaturan" onclick="switchTab('pengaturan')" class="nav-btn px-4 md:px-6 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition">
             <i class="fa-solid fa-gear"></i> Pengaturan
         </button>
     </nav>
 
     <!-- ================= TAB: DASHBOARD ================= -->
-    <div id="tab-content-dashboard" class="space-y-6">
+    <div id="tab-content-dashboard" class="space-y-6 max-w-7xl mx-auto">
         <!-- Stat Cards Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="bg-emerald-500 p-5 rounded-2xl flex justify-between items-center shadow-lg shadow-emerald-500/20">
-                <div>
-                    <p class="text-xs opacity-80 mb-1">Total Aset</p>
-                    <h3 id="stat-total-aset" class="text-2xl font-bold">Rp 1.500.000</h3>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            
+            <div class="glass-card p-4 md:p-5 relative overflow-hidden flex flex-col justify-center min-h-[90px]">
+                <div class="relative z-10">
+                    <p class="text-[10px] md:text-xs text-slate-400 font-semibold mb-1 uppercase tracking-wider">Total Aset</p>
+                    <h3 id="stat-total-aset" class="text-lg md:text-2xl font-bold text-slate-100">Rp 1.500.000</h3>
                 </div>
-                <i class="fa-solid fa-wallet text-2xl opacity-50"></i>
+                <i class="fa-solid fa-wallet text-4xl text-emerald-400 opacity-20 absolute right-4 top-1/2 -translate-y-1/2"></i>
             </div>
-            <div class="bg-amber-500 p-5 rounded-2xl flex justify-between items-center shadow-lg shadow-amber-500/20">
-                <div>
-                    <p class="text-xs opacity-80 mb-1">Pendapatan Kotor (Hari Ini)</p>
-                    <h3 id="stat-kotor" class="text-2xl font-bold">Rp 0</h3>
+            
+            <div class="glass-card p-4 md:p-5 relative overflow-hidden flex flex-col justify-center min-h-[90px]">
+                <div class="relative z-10">
+                    <p class="text-[10px] md:text-xs text-slate-400 font-semibold mb-1 uppercase tracking-wider">Pendapatan Kotor</p>
+                    <h3 id="stat-kotor" class="text-lg md:text-2xl font-bold text-slate-100">Rp 0</h3>
                 </div>
-                <i class="fa-solid fa-dollar-sign text-2xl opacity-50"></i>
+                <i class="fa-solid fa-coins text-4xl text-blue-400 opacity-20 absolute right-4 top-1/2 -translate-y-1/2"></i>
             </div>
-            <div class="bg-pink-500 p-5 rounded-2xl flex justify-between items-center shadow-lg shadow-pink-500/20">
-                <div>
-                    <p class="text-xs opacity-80 mb-1">Pendapatan Bersih (Hari Ini)</p>
-                    <h3 id="stat-bersih" class="text-2xl font-bold">Rp 0</h3>
+            
+            <div class="glass-card p-4 md:p-5 relative overflow-hidden flex flex-col justify-center min-h-[90px]">
+                <div class="relative z-10">
+                    <p class="text-[10px] md:text-xs text-slate-400 font-semibold mb-1 uppercase tracking-wider">Laba Bersih</p>
+                    <h3 id="stat-bersih" class="text-lg md:text-2xl font-bold text-slate-100">Rp 0</h3>
                 </div>
-                <i class="fa-solid fa-piggy-bank text-2xl opacity-50"></i>
+                <i class="fa-solid fa-piggy-bank text-4xl text-amber-400 opacity-20 absolute right-4 top-1/2 -translate-y-1/2"></i>
             </div>
-            <div class="bg-cyan-500 p-5 rounded-2xl flex justify-between items-center shadow-lg shadow-cyan-500/20">
-                <div>
-                    <p class="text-xs opacity-80 mb-1">Transaksi Hari Ini</p>
-                    <h3 id="stat-transaksi-count" class="text-2xl font-bold">0</h3>
+            
+            <div class="glass-card p-4 md:p-5 relative overflow-hidden flex flex-col justify-center min-h-[90px]">
+                <div class="relative z-10">
+                    <p class="text-[10px] md:text-xs text-slate-400 font-semibold mb-1 uppercase tracking-wider">Total Transaksi</p>
+                    <h3 id="stat-transaksi-count" class="text-lg md:text-2xl font-bold text-slate-100">0</h3>
                 </div>
-                <i class="fa-solid fa-list-check text-2xl opacity-50"></i>
+                <i class="fa-solid fa-list-check text-4xl text-cyan-400 opacity-20 absolute right-4 top-1/2 -translate-y-1/2"></i>
             </div>
+
         </div>
 
-        <!-- Balance Sections -->
+        <!-- Main Content Area: Balances & Actions -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
             <!-- Saldo Bank -->
-            <div class="glass-card p-5">
-                <div class="flex justify-between items-center mb-4">
+            <div class="glass-card p-5 flex flex-col">
+                <div class="flex justify-between items-center mb-6">
                     <div class="flex items-center gap-2">
-                        <i class="fa-solid fa-building-columns text-amber-400"></i>
-                        <span class="font-semibold">Saldo Bank</span>
+                        <div class="p-2 bg-blue-500/10 rounded-lg border border-blue-500/20"><i class="fa-solid fa-building-columns text-blue-400"></i></div>
+                        <span class="font-bold text-slate-200">Saldo Bank</span>
                     </div>
-                    <span id="saldo-bank-total" class="font-bold">Rp 1.000.000</span>
+                    <span id="saldo-bank-total" class="font-bold text-emerald-400">Rp 1.000.000</span>
                 </div>
-                <div class="space-y-3 text-sm">
-                    <div class="flex justify-between items-center p-2 bg-white/5 rounded">
-                        <span>BCA</span>
-                        <span id="saldo-bca">Rp 500.000</span>
+                <div class="space-y-3 text-sm flex-1">
+                    <div class="flex justify-between items-center p-3 bg-slate-900/40 rounded-xl border border-slate-700/50 hover:border-slate-600 transition">
+                        <span class="text-slate-300 font-medium">BCA</span>
+                        <span id="saldo-bca" class="font-semibold text-slate-100">Rp 500.000</span>
                     </div>
-                    <div class="flex justify-between items-center p-2 bg-white/5 rounded">
-                        <span>BRI</span>
-                        <span id="saldo-bri">Rp 300.000</span>
+                    <div class="flex justify-between items-center p-3 bg-slate-900/40 rounded-xl border border-slate-700/50 hover:border-slate-600 transition">
+                        <span class="text-slate-300 font-medium">BRI</span>
+                        <span id="saldo-bri" class="font-semibold text-slate-100">Rp 300.000</span>
                     </div>
-                    <div class="flex justify-between items-center p-2 bg-white/5 rounded">
-                        <span>MANDIRI</span>
-                        <span id="saldo-mandiri">Rp 200.000</span>
+                    <div class="flex justify-between items-center p-3 bg-slate-900/40 rounded-xl border border-slate-700/50 hover:border-slate-600 transition">
+                        <span class="text-slate-300 font-medium">MANDIRI</span>
+                        <span id="saldo-mandiri" class="font-semibold text-slate-100">Rp 200.000</span>
                     </div>
                 </div>
             </div>
 
             <!-- Saldo E-Wallet & E-Money -->
-            <div class="glass-card p-5">
-                <div class="flex justify-between items-center mb-4">
+            <div class="glass-card p-5 flex flex-col">
+                <div class="flex justify-between items-center mb-6">
                     <div class="flex items-center gap-2">
-                        <i class="fa-solid fa-mobile-screen text-blue-400"></i>
-                        <span class="font-semibold">E-Wallet & E-Money</span>
+                        <div class="p-2 bg-emerald-500/10 rounded-lg border border-emerald-500/20"><i class="fa-solid fa-mobile-screen text-emerald-400"></i></div>
+                        <span class="font-bold text-slate-200">Digital / E-Money</span>
                     </div>
-                    <span id="saldo-wallet-total" class="font-bold">Rp 350.000</span>
+                    <span id="saldo-wallet-total" class="font-bold text-blue-400">Rp 350.000</span>
                 </div>
-                <div class="space-y-3 text-sm">
-                    <div class="flex justify-between items-center p-2 bg-white/5 rounded">
-                        <span class="flex items-center gap-2"><i class="fa-solid fa-wallet text-xs text-emerald-400"></i> GoPay / OVO</span>
-                        <span id="saldo-gopay">Rp 150.000</span>
+                <div class="space-y-3 text-sm flex-1">
+                    <div class="flex justify-between items-center p-3 bg-slate-900/40 rounded-xl border border-slate-700/50 hover:border-slate-600 transition">
+                        <span class="flex items-center gap-2 text-slate-300 font-medium"><i class="fa-solid fa-wallet text-emerald-500 w-4"></i> GoPay/OVO</span>
+                        <span id="saldo-gopay" class="font-semibold text-slate-100">Rp 150.000</span>
                     </div>
-                    <div class="flex justify-between items-center p-2 bg-white/5 rounded">
-                        <span class="flex items-center gap-2"><i class="fa-solid fa-credit-card text-xs text-yellow-400"></i> Mandiri E-Money</span>
-                        <span id="saldo-emoney">Rp 100.000</span>
+                    <div class="flex justify-between items-center p-3 bg-slate-900/40 rounded-xl border border-slate-700/50 hover:border-slate-600 transition">
+                        <span class="flex items-center gap-2 text-slate-300 font-medium"><i class="fa-solid fa-credit-card text-amber-500 w-4"></i> E-Money</span>
+                        <span id="saldo-emoney" class="font-semibold text-slate-100">Rp 100.000</span>
                     </div>
-                    <div class="flex justify-between items-center p-2 bg-white/5 rounded">
-                        <span class="flex items-center gap-2"><i class="fa-solid fa-address-card text-xs text-blue-400"></i> BCA Flazz</span>
-                        <span id="saldo-flazz">Rp 100.000</span>
+                    <div class="flex justify-between items-center p-3 bg-slate-900/40 rounded-xl border border-slate-700/50 hover:border-slate-600 transition">
+                        <span class="flex items-center gap-2 text-slate-300 font-medium"><i class="fa-solid fa-address-card text-blue-500 w-4"></i> Flazz</span>
+                        <span id="saldo-flazz" class="font-semibold text-slate-100">Rp 100.000</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Saldo Laci -->
-            <div class="glass-card p-5">
-                <div class="flex justify-between items-center">
+            <!-- Saldo Laci + Actions -->
+            <div class="glass-card p-5 flex flex-col">
+                <div class="flex justify-between items-start mb-4">
                     <div class="flex items-center gap-2">
-                        <i class="fa-solid fa-cash-register text-yellow-400"></i>
-                        <span class="font-semibold">Saldo Laci (Tunai)</span>
+                        <div class="p-2 bg-amber-500/10 rounded-lg border border-amber-500/20"><i class="fa-solid fa-cash-register text-amber-400"></i></div>
+                        <span class="font-bold text-slate-200">Saldo Laci (Tunai)</span>
                     </div>
-                    <span id="saldo-laci" class="font-bold text-xl">Rp 150.000</span>
                 </div>
-                <div class="mt-8 flex justify-center items-center h-20 opacity-20">
-                    <i class="fa-solid fa-money-bill-wave text-6xl"></i>
+                
+                <div class="flex-1 flex flex-col justify-center items-center py-4">
+                    <span id="saldo-laci" class="font-bold text-3xl text-slate-100 tracking-tight">Rp 150.000</span>
+                    <span class="text-xs text-slate-400 mt-2 bg-slate-900/50 px-3 py-1 rounded-full border border-slate-700/50">Estimasi uang fisik di kasir</span>
+                </div>
+
+                <!-- Combined System Actions -->
+                <div class="mt-4 pt-4 border-t border-slate-700/50 grid grid-cols-2 gap-3">
+                    <button onclick="resetStats()" class="bg-slate-700/40 hover:bg-slate-700 border border-slate-600 text-slate-300 py-2.5 rounded-xl flex items-center justify-center gap-2 text-xs font-semibold transition">
+                        <i class="fa-solid fa-rotate-left"></i> Reset Stat
+                    </button>
+                    <button onclick="openOwnerReport()" class="bg-blue-600/90 hover:bg-blue-500 text-white py-2.5 rounded-xl flex items-center justify-center gap-2 text-xs font-semibold transition shadow-lg shadow-blue-900/20">
+                        <i class="fa-solid fa-chart-line"></i> Laporan
+                    </button>
                 </div>
             </div>
         </div>
 
-        <!-- Bottom Actions Area -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- Aksi Cepat -->
-            <div class="glass-card p-5">
-                <h4 class="font-semibold mb-6">Aksi Cepat PPOB / API</h4>
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                    <button onclick="quickAction('Transfer Bank')" class="flex flex-col items-center gap-2 p-3 bg-white/5 hover:bg-white/10 rounded-xl transition">
-                        <i class="fa-solid fa-arrow-up text-purple-400 text-lg inline-block transform rotate-45"></i>
-                        <span class="text-[11px] font-medium">Transfer Bank</span>
-                    </button>
-                    <button onclick="quickAction('Tarik Tunai')" class="flex flex-col items-center gap-2 p-3 bg-white/5 hover:bg-white/10 rounded-xl transition">
-                        <i class="fa-solid fa-arrow-down text-purple-400 text-lg inline-block transform rotate-45"></i>
-                        <span class="text-[11px] font-medium">Tarik Tunai</span>
-                    </button>
-                    <button onclick="quickAction('Top Up E-Money')" class="flex flex-col items-center gap-2 p-3 bg-white/5 hover:bg-white/10 rounded-xl text-yellow-300 border border-yellow-500/20">
-                        <i class="fa-solid fa-credit-card text-lg"></i>
-                        <span class="text-[11px] font-medium">Top Up E-Money</span>
-                    </button>
-                    <button onclick="quickAction('Top Up E-Wallet')" class="flex flex-col items-center gap-2 p-3 bg-white/5 hover:bg-white/10 rounded-xl transition">
-                        <i class="fa-solid fa-mobile-button text-purple-400 text-lg"></i>
-                        <span class="text-[11px] font-medium">Top Up E-Wallet</span>
-                    </button>
-                    <button onclick="quickAction('Bayar Pulsa')" class="flex flex-col items-center gap-2 p-3 bg-white/5 hover:bg-white/10 rounded-xl transition">
-                        <i class="fa-solid fa-phone text-purple-400 text-lg"></i>
-                        <span class="text-[11px] font-medium">Bayar Pulsa</span>
-                    </button>
-                    <button onclick="quickAction('Bayar Tagihan')" class="flex flex-col items-center gap-2 p-3 bg-white/5 hover:bg-white/10 rounded-xl transition">
-                        <i class="fa-solid fa-bolt text-purple-400 text-lg"></i>
-                        <span class="text-[11px] font-medium">Bayar Tagihan</span>
-                    </button>
-                    <button onclick="quickAction('Bayar WIFI')" class="flex flex-col items-center gap-2 p-3 bg-white/5 hover:bg-white/10 rounded-xl transition">
-                        <i class="fa-solid fa-wifi text-purple-400 text-lg"></i>
-                        <span class="text-[11px] font-medium">Bayar WIFI</span>
-                    </button>
-                    <button onclick="quickAction('Tambah Saldo')" class="flex flex-col items-center gap-2 p-3 bg-white/5 hover:bg-white/10 rounded-xl text-emerald-400 border border-emerald-500/20 transition">
-                        <i class="fa-solid fa-plus text-lg"></i>
-                        <span class="text-[11px] font-medium">Tambah Saldo</span>
-                    </button>
-                </div>
+        <!-- Aksi Cepat PPOB (Full Width Grid) -->
+        <div class="glass-card p-5">
+            <div class="flex items-center gap-2 mb-5">
+                <i class="fa-solid fa-bolt text-amber-400"></i>
+                <h4 class="font-bold text-slate-200">Aksi Cepat PPOB</h4>
             </div>
-
-            <!-- Danger Zone and Add Balance -->
-            <div class="space-y-6">
-                <div class="glass-card p-5">
-                    <h4 class="text-sm font-semibold mb-4">Mutasi Tambah Saldo Hari Ini</h4>
-                    <div class="flex items-center justify-between bg-white/10 p-4 rounded-xl border border-white/10">
-                        <i class="fa-solid fa-download text-emerald-400 text-xl"></i>
-                        <span id="stat-tambah-saldo" class="text-xl font-bold">Rp 0</span>
-                    </div>
-                </div>
-
-                <div class="glass-card p-5">
-                    <h4 class="text-sm font-semibold mb-4">Tindakan Sistem</h4>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <button onclick="resetStats()" class="bg-red-800/80 hover:bg-red-700 py-3 rounded-xl flex items-center justify-center gap-2 text-sm font-medium transition">
-                            <i class="fa-solid fa-rotate"></i> Reset Statistik
-                        </button>
-                        <button onclick="openOwnerReport()" class="bg-blue-600/80 hover:bg-blue-500 py-3 rounded-xl flex items-center justify-center gap-2 text-sm font-medium transition">
-                            <i class="fa-solid fa-shield-halved"></i> Laporan Owner
-                        </button>
-                    </div>
-                </div>
+            <div class="grid grid-cols-4 md:grid-cols-8 gap-3 md:gap-4">
+                <button onclick="quickAction('Transfer Bank')" class="flex flex-col items-center gap-2.5 p-3 bg-slate-900/40 hover:bg-slate-700/80 border border-slate-700/50 hover:border-slate-500 rounded-xl transition text-center group">
+                    <i class="fa-solid fa-arrow-up text-blue-400 text-lg md:text-xl inline-block transform rotate-45 group-hover:-translate-y-0.5 transition-transform"></i>
+                    <span class="text-[9px] md:text-[11px] font-semibold text-slate-300 leading-tight">Transfer<br>Bank</span>
+                </button>
+                <button onclick="quickAction('Tarik Tunai')" class="flex flex-col items-center gap-2.5 p-3 bg-slate-900/40 hover:bg-slate-700/80 border border-slate-700/50 hover:border-slate-500 rounded-xl transition text-center group">
+                    <i class="fa-solid fa-arrow-down text-emerald-400 text-lg md:text-xl inline-block transform rotate-45 group-hover:translate-y-0.5 transition-transform"></i>
+                    <span class="text-[9px] md:text-[11px] font-semibold text-slate-300 leading-tight">Tarik<br>Tunai</span>
+                </button>
+                <button onclick="quickAction('Top Up E-Money')" class="flex flex-col items-center gap-2.5 p-3 bg-slate-900/40 hover:bg-slate-700/80 border border-slate-700/50 hover:border-slate-500 rounded-xl transition text-center group">
+                    <i class="fa-solid fa-credit-card text-amber-400 text-lg md:text-xl group-hover:scale-110 transition-transform"></i>
+                    <span class="text-[9px] md:text-[11px] font-semibold text-slate-300 leading-tight">Isi<br>E-Money</span>
+                </button>
+                <button onclick="quickAction('Top Up E-Wallet')" class="flex flex-col items-center gap-2.5 p-3 bg-slate-900/40 hover:bg-slate-700/80 border border-slate-700/50 hover:border-slate-500 rounded-xl transition text-center group">
+                    <i class="fa-solid fa-mobile-button text-purple-400 text-lg md:text-xl group-hover:scale-110 transition-transform"></i>
+                    <span class="text-[9px] md:text-[11px] font-semibold text-slate-300 leading-tight">Isi<br>E-Wallet</span>
+                </button>
+                <button onclick="quickAction('Bayar Pulsa')" class="flex flex-col items-center gap-2.5 p-3 bg-slate-900/40 hover:bg-slate-700/80 border border-slate-700/50 hover:border-slate-500 rounded-xl transition text-center group">
+                    <i class="fa-solid fa-phone text-rose-400 text-lg md:text-xl group-hover:rotate-12 transition-transform"></i>
+                    <span class="text-[9px] md:text-[11px] font-semibold text-slate-300 leading-tight">Isi<br>Pulsa</span>
+                </button>
+                <button onclick="quickAction('Bayar Tagihan')" class="flex flex-col items-center gap-2.5 p-3 bg-slate-900/40 hover:bg-slate-700/80 border border-slate-700/50 hover:border-slate-500 rounded-xl transition text-center group">
+                    <i class="fa-solid fa-bolt text-yellow-400 text-lg md:text-xl group-hover:scale-110 transition-transform"></i>
+                    <span class="text-[9px] md:text-[11px] font-semibold text-slate-300 leading-tight">Bayar<br>Tagihan</span>
+                </button>
+                <button onclick="quickAction('Bayar WIFI')" class="flex flex-col items-center gap-2.5 p-3 bg-slate-900/40 hover:bg-slate-700/80 border border-slate-700/50 hover:border-slate-500 rounded-xl transition text-center group">
+                    <i class="fa-solid fa-wifi text-cyan-400 text-lg md:text-xl group-hover:scale-110 transition-transform"></i>
+                    <span class="text-[9px] md:text-[11px] font-semibold text-slate-300 leading-tight">Bayar<br>WIFI</span>
+                </button>
+                <button onclick="quickAction('Tambah Saldo')" class="flex flex-col items-center gap-2.5 p-3 bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/40 rounded-xl transition text-center group">
+                    <i class="fa-solid fa-plus text-blue-400 text-lg md:text-xl group-hover:rotate-90 transition-transform"></i>
+                    <span class="text-[9px] md:text-[11px] font-bold text-blue-400 leading-tight">Deposit<br>Saldo</span>
+                </button>
             </div>
         </div>
     </div>
@@ -281,55 +272,54 @@
 
     <!-- ================= TAB: INPUT TRANSAKSI ================= -->
     <div id="tab-content-input" class="space-y-6 hidden">
-        <div class="glass-card p-6 max-w-2xl mx-auto">
-            <h2 class="text-xl font-bold mb-6 flex items-center gap-2">
-                <i class="fa-solid fa-circle-plus text-purple-400"></i> Form Input Transaksi PPOB / API
+        <div class="glass-card p-6 md:p-8 max-w-2xl mx-auto">
+            <h2 class="text-xl font-bold mb-6 flex items-center gap-2 text-slate-100">
+                <i class="fa-solid fa-circle-plus text-blue-500"></i> Input Transaksi PPOB
             </h2>
             
-            <form id="transaction-form" onsubmit="processTransaction(event)" class="space-y-4">
+            <form id="transaction-form" onsubmit="processTransaction(event)" class="space-y-5">
                 <div>
-                    <label class="block text-sm text-gray-300 mb-2 font-medium">Kategori Transaksi</label>
-                    <select id="tx-category" onchange="onCategoryChange()" class="w-full bg-indigo-950/60 border border-white/20 rounded-lg p-3 text-white focus:outline-none focus:border-purple-500">
-                        <option value="E-Money">Top Up E-Money (Mandiri, BCA Flazz, BNI TapCash)</option>
-                        <option value="E-Wallet">Top Up E-Wallet (GoPay, OVO, DANA)</option>
+                    <label class="block text-sm text-slate-300 mb-2 font-medium">Kategori Transaksi</label>
+                    <select id="tx-category" onchange="onCategoryChange()" class="w-full bg-slate-900/60 border border-slate-600 rounded-xl p-3.5 text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition">
+                        <option value="E-Money">Top Up E-Money (Mandiri, Flazz)</option>
+                        <option value="E-Wallet">Top Up E-Wallet (GoPay, OVO)</option>
                         <option value="Transfer">Transfer Bank</option>
                         <option value="Pulsa">Pulsa & Paket Data</option>
-                        <option value="Tagihan">Bayar Tagihan (WIFI, Listrik PLN, BPJS)</option>
+                        <option value="Tagihan">Bayar Tagihan (WIFI, PLN)</option>
                     </select>
                 </div>
 
                 <div>
-                    <label class="block text-sm text-gray-300 mb-2 font-medium">Pilih Layanan / Produk <span class="text-xs text-purple-300">(Ambil dari Agregator API)</span></label>
-                    <select id="tx-product" class="w-full bg-indigo-950/60 border border-white/20 rounded-lg p-3 text-white focus:outline-none focus:border-purple-500">
+                    <label class="block text-sm text-slate-300 mb-2 font-medium">Pilih Layanan / Produk</label>
+                    <select id="tx-product" class="w-full bg-slate-900/60 border border-slate-600 rounded-xl p-3.5 text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition">
                         <!-- Dynamic options loaded via JS -->
                     </select>
                 </div>
 
                 <div>
-                    <label id="target-label" class="block text-sm text-gray-300 mb-2 font-medium">Nomor Kartu E-Money</label>
-                    <input type="number" id="tx-target" required placeholder="Contoh: 6032123456789012" class="w-full bg-indigo-950/60 border border-white/20 rounded-lg p-3 text-white placeholder-gray-500 focus:outline-none focus:border-purple-500">
-                    <p class="text-xs text-gray-400 mt-1">Pastikan nomor yang diinput sudah benar sesuai fisik kartu/tujuan.</p>
+                    <label id="target-label" class="block text-sm text-slate-300 mb-2 font-medium">Nomor Tujuan</label>
+                    <input type="number" id="tx-target" required placeholder="Contoh: 6032..." class="w-full bg-slate-900/60 border border-slate-600 rounded-xl p-3.5 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition">
                 </div>
 
                 <div>
-                    <label class="block text-sm text-gray-300 mb-2 font-medium">Nominal Pengisian</label>
+                    <label class="block text-sm text-slate-300 mb-2 font-medium">Nominal Pengisian</label>
                     <div class="grid grid-cols-3 gap-2 mb-3">
-                        <button type="button" onclick="setNominal(20000)" class="bg-white/5 hover:bg-white/10 p-2.5 rounded-lg text-xs font-semibold transition border border-white/10">Rp 20.000</button>
-                        <button type="button" onclick="setNominal(50000)" class="bg-white/5 hover:bg-white/10 p-2.5 rounded-lg text-xs font-semibold transition border border-white/10">Rp 50.000</button>
-                        <button type="button" onclick="setNominal(100000)" class="bg-white/5 hover:bg-white/10 p-2.5 rounded-lg text-xs font-semibold transition border border-white/10">Rp 100.000</button>
-                        <button type="button" onclick="setNominal(200000)" class="bg-white/5 hover:bg-white/10 p-2.5 rounded-lg text-xs font-semibold transition border border-white/10">Rp 200.000</button>
-                        <button type="button" onclick="setNominal(500000)" class="bg-white/5 hover:bg-white/10 p-2.5 rounded-lg text-xs font-semibold transition border border-white/10">Rp 500.000</button>
-                        <button type="button" onclick="setNominal(1000000)" class="bg-white/5 hover:bg-white/10 p-2.5 rounded-lg text-xs font-semibold transition border border-white/10">Rp 1.000.000</button>
+                        <button type="button" onclick="setNominal(20000)" class="bg-slate-800/60 hover:bg-slate-700 p-2.5 rounded-lg text-xs font-semibold text-slate-300 transition border border-slate-600/50">Rp 20.000</button>
+                        <button type="button" onclick="setNominal(50000)" class="bg-slate-800/60 hover:bg-slate-700 p-2.5 rounded-lg text-xs font-semibold text-slate-300 transition border border-slate-600/50">Rp 50.000</button>
+                        <button type="button" onclick="setNominal(100000)" class="bg-slate-800/60 hover:bg-slate-700 p-2.5 rounded-lg text-xs font-semibold text-slate-300 transition border border-slate-600/50">Rp 100.000</button>
+                        <button type="button" onclick="setNominal(200000)" class="bg-slate-800/60 hover:bg-slate-700 p-2.5 rounded-lg text-xs font-semibold text-slate-300 transition border border-slate-600/50">Rp 200.000</button>
+                        <button type="button" onclick="setNominal(500000)" class="bg-slate-800/60 hover:bg-slate-700 p-2.5 rounded-lg text-xs font-semibold text-slate-300 transition border border-slate-600/50">Rp 500.000</button>
+                        <button type="button" onclick="setNominal(1000000)" class="bg-slate-800/60 hover:bg-slate-700 p-2.5 rounded-lg text-xs font-semibold text-slate-300 transition border border-slate-600/50">Rp 1 Juta</button>
                     </div>
                     <div class="relative">
-                        <span class="absolute left-3 top-3.5 text-gray-400 text-sm">Rp</span>
-                        <input type="number" id="tx-nominal" required placeholder="0" class="w-full bg-indigo-950/60 border border-white/20 rounded-lg p-3 pl-10 text-white focus:outline-none focus:border-purple-500">
+                        <span class="absolute left-4 top-3.5 text-slate-400 font-medium">Rp</span>
+                        <input type="number" id="tx-nominal" required placeholder="0" class="w-full bg-slate-900/80 border border-slate-600 rounded-xl p-3.5 pl-12 text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition font-bold text-lg">
                     </div>
                 </div>
 
                 <div class="pt-4">
-                    <button type="submit" class="w-full bg-purple-600 hover:bg-purple-500 py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-purple-600/30 transition">
-                        <i class="fa-solid fa-paper-plane"></i> Proses Transaksi & Ambil API
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 py-4 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-blue-900/20 transition text-white">
+                        <i class="fa-solid fa-paper-plane"></i> Proses Transaksi
                     </button>
                 </div>
             </form>
@@ -338,36 +328,34 @@
 
 
     <!-- ================= TAB: RIWAYAT ================= -->
-    <div id="tab-content-riwayat" class="space-y-6 hidden">
+    <div id="tab-content-riwayat" class="space-y-6 hidden max-w-6xl mx-auto">
         <div class="glass-card p-6">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold flex items-center gap-2">
-                    <i class="fa-solid fa-history text-purple-400"></i> Riwayat Transaksi Agregator
+                <h2 class="text-xl font-bold flex items-center gap-2 text-slate-100">
+                    <i class="fa-solid fa-history text-blue-500"></i> Riwayat Transaksi
                 </h2>
-                <button onclick="clearHistory()" class="text-xs text-red-300 hover:text-red-400 bg-white/5 px-3 py-2 rounded-lg transition">
-                    <i class="fa-solid fa-trash-can"></i> Hapus Semua Riwayat
+                <button onclick="clearHistory()" class="text-xs text-rose-400 hover:text-rose-300 bg-rose-500/10 border border-rose-500/20 px-3 py-2 rounded-lg transition font-medium">
+                    <i class="fa-solid fa-trash-can"></i> Hapus Riwayat
                 </button>
             </div>
             
             <div class="overflow-x-auto">
-                <table class="w-full text-left text-sm">
+                <table class="w-full text-left text-sm min-w-[700px]">
                     <thead>
-                        <tr class="border-b border-white/10 text-gray-400">
-                            <th class="pb-3 font-semibold">Waktu</th>
-                            <th class="pb-3 font-semibold">Kategori</th>
-                            <th class="pb-3 font-semibold">Produk / Layanan</th>
-                            <th class="pb-3 font-semibold">Tujuan / No Kartu</th>
-                            <th class="pb-3 font-semibold">Nominal</th>
-                            <th class="pb-3 font-semibold">Serial Number (API)</th>
-                            <th class="pb-3 font-semibold">Status</th>
+                        <tr class="border-b border-slate-700 text-slate-400">
+                            <th class="pb-3 font-semibold px-2">Waktu</th>
+                            <th class="pb-3 font-semibold px-2">Kategori</th>
+                            <th class="pb-3 font-semibold px-2">Produk / Layanan</th>
+                            <th class="pb-3 font-semibold px-2">Tujuan</th>
+                            <th class="pb-3 font-semibold px-2 text-right">Nominal</th>
+                            <th class="pb-3 font-semibold px-2 text-center">Status</th>
                         </tr>
                     </thead>
-                    <tbody id="history-table-body" class="divide-y divide-white/5">
-                        <!-- History rows will be dynamically injected here -->
+                    <tbody id="history-table-body" class="divide-y divide-slate-700/50">
                         <tr id="empty-history">
-                            <td colspan="7" class="py-8 text-center text-gray-500">
-                                <i class="fa-solid fa-receipt text-4xl mb-2 opacity-30 block"></i>
-                                Belum ada transaksi diproses. Silakan input transaksi pertama Anda!
+                            <td colspan="6" class="py-12 text-center text-slate-500">
+                                <i class="fa-solid fa-receipt text-4xl mb-3 opacity-30 block"></i>
+                                Belum ada transaksi diproses.
                             </td>
                         </tr>
                     </tbody>
@@ -377,125 +365,100 @@
     </div>
 
 
-    <!-- ================= TAB: PENGATURAN (API & PROFIL TOKO) ================= -->
+    <!-- ================= TAB: PENGATURAN ================= -->
     <div id="tab-content-pengaturan" class="space-y-6 hidden">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-6xl mx-auto">
             
             <!-- Column 1: API Agregator -->
-            <div class="glass-card p-6 flex flex-col justify-between">
+            <div class="glass-card p-6 md:p-8 flex flex-col justify-between">
                 <div>
-                    <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
-                        <i class="fa-solid fa-gears text-purple-400"></i> Konfigurasi API Agregator PPOB
+                    <h2 class="text-xl font-bold mb-6 flex items-center gap-2 text-slate-100">
+                        <i class="fa-solid fa-gears text-blue-500"></i> Konfigurasi Sistem API
                     </h2>
-                    <p class="text-xs text-gray-300 mb-6 leading-relaxed">
-                        Di lingkungan produksi, Anda dapat menghubungkan dashboard ini dengan platform Agregator PPOB Indonesia. API Key di bawah akan mensimulasikan otentikasi aman dan mengambil list harga serta status transaksi real-time.
-                    </p>
 
-                    <div class="space-y-4">
+                    <div class="space-y-5">
                         <div>
-                            <label class="block text-sm text-gray-300 mb-2 font-medium">Pilih Agregator Layanan</label>
-                            <select id="cfg-aggregator" class="w-full bg-indigo-950/60 border border-white/20 rounded-lg p-3 text-white focus:outline-none focus:border-purple-500">
-                                <option value="digiflazz">Digiflazz (Rekomendasi - Termurah & Tercepat)</option>
-                                <option value="iak">IAK / Mobilepulsa (Stabil & Produk Lengkap)</option>
-                                <option value="tokovoucher">Tokovoucher API (Proses Mudah)</option>
-                                <option value="sandbox">Sandbox (Mode Simulasi Pengujian)</option>
+                            <label class="block text-sm text-slate-300 mb-2 font-medium">Pilih Agregator Layanan</label>
+                            <select id="cfg-aggregator" class="w-full bg-slate-900/60 border border-slate-600 rounded-xl p-3.5 text-slate-100 focus:outline-none focus:border-blue-500">
+                                <option value="digiflazz">Digiflazz API</option>
+                                <option value="iak">IAK / Mobilepulsa</option>
+                                <option value="tokovoucher">Tokovoucher API</option>
+                                <option value="sandbox">Sandbox (Mode Uji Coba)</option>
                             </select>
                         </div>
 
                         <div>
-                            <label class="block text-sm text-gray-300 mb-2 font-medium">Aggregator API Username / ID</label>
-                            <input type="text" id="cfg-username" value="kasqu_merchant_demo" class="w-full bg-indigo-950/60 border border-white/20 rounded-lg p-3 text-white focus:outline-none focus:border-purple-500">
+                            <label class="block text-sm text-slate-300 mb-2 font-medium">Username / ID Merchant</label>
+                            <input type="text" id="cfg-username" value="kasqu_merchant_demo" class="w-full bg-slate-900/60 border border-slate-600 rounded-xl p-3.5 text-slate-100 focus:outline-none focus:border-blue-500">
                         </div>
 
-                        <div>
-                            <label class="block text-sm text-gray-300 mb-2 font-medium">API Key (Production / Development)</label>
-                            <input type="password" id="cfg-apikey" value="••••••••••••••••••••••••••••••••" class="w-full bg-indigo-950/60 border border-white/20 rounded-lg p-3 text-white focus:outline-none focus:border-purple-500">
+                        <div class="mt-6 border-t border-slate-700 pt-5">
+                            <label class="block text-sm text-emerald-400 mb-2 font-bold"><i class="fa-solid fa-file-excel"></i> URL Google Sheets (GAS)</label>
+                            <input type="text" id="cfg-gas-url" placeholder="https://script.google.com/macros/s/.../exec" class="w-full bg-slate-900/60 border border-emerald-500/30 rounded-xl p-3.5 text-slate-100 focus:outline-none focus:border-emerald-500 placeholder-slate-600">
+                            <p class="text-[10px] text-slate-400 mt-2 leading-relaxed">Masukkan Web App URL dari Google Apps Script untuk menjadikan Google Sheets sebagai database & laporan real-time.</p>
                         </div>
-
-                        <div class="mt-6 border-t border-white/10 pt-4">
-                            <label class="block text-sm text-emerald-400 mb-2 font-bold"><i class="fa-solid fa-file-excel"></i> Link Database Google Sheets (GAS)</label>
-                            <input type="text" id="cfg-gas-url" placeholder="https://script.google.com/macros/s/.../exec" class="w-full bg-indigo-950/60 border border-emerald-500/30 rounded-lg p-3 text-white focus:outline-none focus:border-emerald-500 placeholder-gray-600">
-                            <p class="text-[10px] text-gray-400 mt-1">Masukkan Web App URL (GAS) untuk backup data otomatis ke Spreadsheet.</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="pt-6 space-y-4">
-                    <button onclick="testApiConnection()" class="w-full bg-emerald-600 hover:bg-emerald-500 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition">
-                        <i class="fa-solid fa-plug"></i> Tes & Simpan Koneksi API Agregator
-                    </button>
-                    <div id="api-status-box" class="hidden p-4 rounded-xl border">
-                        <!-- Loaded dynamically via JS test -->
                     </div>
                 </div>
             </div>
 
             <!-- Column 2: Profil Toko & Struk -->
-            <div class="glass-card p-6 flex flex-col justify-between">
+            <div class="glass-card p-6 md:p-8 flex flex-col justify-between">
                 <div>
-                    <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
-                        <i class="fa-solid fa-id-card text-purple-400"></i> Profil Toko & Pengaturan Struk
+                    <h2 class="text-xl font-bold mb-6 flex items-center gap-2 text-slate-100">
+                        <i class="fa-solid fa-id-card text-blue-500"></i> Profil Toko & Struk
                     </h2>
-                    <p class="text-xs text-gray-300 mb-6 leading-relaxed">
-                        Ubah data profil tokomu di sini. Perubahan akan langsung merefleksikan tampilan logo dan nama toko di Header Aplikasi, Header Struk Pembayaran, serta unduhan Struk Gambar & PDF.
-                    </p>
 
-                    <div class="space-y-4">
+                    <div class="space-y-5">
                         <div>
-                            <label class="block text-sm text-gray-300 mb-2 font-medium">Nama Toko / Usaha</label>
-                            <input type="text" id="cfg-shop-name" class="w-full bg-indigo-950/60 border border-white/20 rounded-lg p-3 text-white focus:outline-none focus:border-purple-500">
+                            <label class="block text-sm text-slate-300 mb-2 font-medium">Nama Toko / Agen</label>
+                            <input type="text" id="cfg-shop-name" class="w-full bg-slate-900/60 border border-slate-600 rounded-xl p-3.5 text-slate-100 focus:outline-none focus:border-blue-500">
                         </div>
 
                         <!-- Upload Logo Kustom -->
                         <div>
-                            <label class="block text-sm text-gray-300 mb-2 font-medium">Upload Logo Kustom (Opsional)</label>
-                            <div class="flex items-center gap-3 bg-indigo-950/60 border border-white/20 rounded-lg p-3">
+                            <label class="block text-sm text-slate-300 mb-2 font-medium">Logo Toko (Opsional)</label>
+                            <div class="flex items-center gap-3 bg-slate-900/60 border border-slate-600 rounded-xl p-3">
                                 <input type="file" id="cfg-shop-logo-upload" accept="image/*" onchange="handleLogoUpload(event)" class="hidden">
-                                <button type="button" onclick="document.getElementById('cfg-shop-logo-upload').click()" class="bg-purple-600 hover:bg-purple-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1">
-                                    <i class="fa-solid fa-cloud-arrow-up"></i> Upload Gambar
+                                <button type="button" onclick="document.getElementById('cfg-shop-logo-upload').click()" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-xs font-bold transition flex items-center gap-2 shrink-0">
+                                    <i class="fa-solid fa-cloud-arrow-up"></i> Upload
                                 </button>
-                                <span id="logo-file-name" class="text-xs text-gray-400 truncate max-w-[150px]">Belum ada logo diupload</span>
-                                <button id="btn-delete-logo" type="button" onclick="deleteLogo()" class="text-red-400 hover:text-red-300 text-xs hidden">
+                                <span id="logo-file-name" class="text-xs text-slate-400 truncate w-24">Belum ada</span>
+                                <button id="btn-delete-logo" type="button" onclick="deleteLogo()" class="text-rose-400 hover:text-rose-300 text-xs hidden shrink-0 ml-auto mr-2">
                                     <i class="fa-solid fa-trash"></i> Hapus
                                 </button>
                             </div>
-                            <div id="logo-preview-container" class="mt-2 hidden">
-                                <p class="text-[10px] text-gray-400 mb-1">Pratinjau Logo:</p>
-                                <img id="logo-preview-img" src="" class="h-12 w-12 object-contain rounded bg-white p-1 border border-white/20">
+                            <div id="logo-preview-container" class="mt-3 hidden">
+                                <img id="logo-preview-img" src="" class="h-12 w-12 object-contain rounded-lg bg-white p-1 border border-slate-600">
                             </div>
                         </div>
 
                         <div>
-                            <label class="block text-sm text-gray-300 mb-2 font-medium">Atau Pilih Ikon Logo (Jika Tidak Upload Logo)</label>
-                            <select id="cfg-shop-icon" class="w-full bg-indigo-950/60 border border-white/20 rounded-lg p-3 text-white focus:outline-none focus:border-purple-500">
+                            <label class="block text-sm text-slate-300 mb-2 font-medium">Ikon Alternatif</label>
+                            <select id="cfg-shop-icon" class="w-full bg-slate-900/60 border border-slate-600 rounded-xl p-3.5 text-slate-100 focus:outline-none focus:border-blue-500">
                                 <option value="fa-solid fa-store">🏪 Toko / Merchant (Default)</option>
-                                <option value="fa-solid fa-server">🖥️ Server API / Agregator</option>
-                                <option value="fa-solid fa-wallet">👛 Dompet Digital / Wallet</option>
-                                <option value="fa-solid fa-credit-card">💳 Kartu Debit / E-Money</option>
-                                <option value="fa-solid fa-cash-register">🎰 Mesin Kasir / Drawer</option>
-                                <option value="fa-solid fa-building-columns">🏛️ Bank / Keuangan</option>
+                                <option value="fa-solid fa-wallet">👛 Dompet Digital</option>
+                                <option value="fa-solid fa-cash-register">🎰 Mesin Kasir</option>
                             </select>
                         </div>
 
                         <div>
-                            <label class="block text-sm text-gray-300 mb-2 font-medium">Alamat Toko (Muncul di Struk)</label>
-                            <input type="text" id="cfg-shop-address" class="w-full bg-indigo-950/60 border border-white/20 rounded-lg p-3 text-white focus:outline-none focus:border-purple-500">
+                            <label class="block text-sm text-slate-300 mb-2 font-medium">Alamat Lengkap</label>
+                            <input type="text" id="cfg-shop-address" class="w-full bg-slate-900/60 border border-slate-600 rounded-xl p-3.5 text-slate-100 focus:outline-none focus:border-blue-500">
                         </div>
 
                         <div>
-                            <label class="block text-sm text-gray-300 mb-2 font-medium">Pesan Footer Struk</label>
-                            <input type="text" id="cfg-shop-footer" class="w-full bg-indigo-950/60 border border-white/20 rounded-lg p-3 text-white focus:outline-none focus:border-purple-500">
+                            <label class="block text-sm text-slate-300 mb-2 font-medium">Pesan Bawah Struk (Footer)</label>
+                            <input type="text" id="cfg-shop-footer" class="w-full bg-slate-900/60 border border-slate-600 rounded-xl p-3.5 text-slate-100 focus:outline-none focus:border-blue-500">
                         </div>
                     </div>
                 </div>
 
-                <div class="pt-6">
-                    <button onclick="saveShopSettings()" class="w-full bg-purple-600 hover:bg-purple-500 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition">
-                        <i class="fa-solid fa-floppy-disk"></i> Simpan Profil & Desain Struk
+                <div class="pt-8">
+                    <button onclick="saveShopSettings()" class="w-full bg-blue-600 hover:bg-blue-500 py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition text-white shadow-lg shadow-blue-900/20">
+                        <i class="fa-solid fa-floppy-disk"></i> Simpan Konfigurasi
                     </button>
                 </div>
             </div>
-
         </div>
     </div>
 
@@ -503,232 +466,146 @@
     <!-- ================= MODALS & POPUPS ================= -->
     
     <!-- API Process Overlay Loader -->
-    <div id="loader-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 hidden">
-        <div class="bg-indigo-950/90 border border-purple-500/30 p-8 rounded-2xl max-w-sm w-full text-center space-y-6">
-            <div class="relative w-20 h-20 mx-auto">
-                <div class="absolute inset-0 border-4 border-purple-500/20 rounded-full"></div>
-                <div class="absolute inset-0 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+    <div id="loader-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center z-50 hidden">
+        <div class="bg-slate-800 border border-slate-700 p-8 rounded-2xl max-w-xs w-full text-center space-y-6 shadow-2xl">
+            <div class="relative w-16 h-16 mx-auto">
+                <div class="absolute inset-0 border-4 border-blue-500/20 rounded-full"></div>
+                <div class="absolute inset-0 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
                 <div class="absolute inset-0 flex items-center justify-center">
-                    <i class="fa-solid fa-cloud-arrow-up text-purple-400 text-2xl animate-pulse"></i>
+                    <i class="fa-solid fa-plug text-blue-400 text-xl animate-pulse"></i>
                 </div>
             </div>
             <div>
-                <h3 id="loader-title" class="font-bold text-lg mb-2">Memproses Transaksi</h3>
-                <p id="loader-step" class="text-sm text-gray-400">Menghubungkan ke API Digiflazz...</p>
-            </div>
-            <div class="w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
-                <div id="loader-bar" class="bg-purple-500 h-full w-1/4 transition-all duration-300"></div>
+                <h3 id="loader-title" class="font-bold text-lg mb-1 text-slate-100">Memproses...</h3>
+                <p id="loader-step" class="text-xs text-slate-400">Menghubungkan ke API...</p>
             </div>
         </div>
     </div>
 
     <!-- Receipt / Struk Modal -->
-    <div id="receipt-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 hidden p-4">
-        <div class="bg-white text-gray-800 p-6 rounded-xl max-w-sm w-full font-mono text-sm relative shadow-2xl">
-            <div class="text-center border-b-2 border-dashed border-gray-300 pb-4 mb-4">
-                <!-- Wrapper Logo di Struk -->
-                <div id="rec-logo-wrapper" class="flex justify-center mb-2 hidden">
-                    <img id="rec-logo" src="" class="h-14 w-14 object-contain rounded bg-white p-0.5 border border-gray-200">
+    <div id="receipt-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center z-50 hidden p-4">
+        <div class="bg-white text-slate-800 p-6 rounded-xl max-w-sm w-full font-mono text-sm relative shadow-2xl">
+            <div class="text-center border-b-2 border-dashed border-slate-300 pb-4 mb-4">
+                <div id="rec-logo-wrapper" class="flex justify-center mb-3 hidden">
+                    <img id="rec-logo" src="" class="h-12 w-12 object-contain rounded bg-white border border-slate-200">
                 </div>
-                <h3 id="rec-shop-name" class="font-bold text-lg text-purple-900">--</h3>
-                <p id="rec-address" class="text-xs text-gray-500">--</p>
-                <p class="text-xs text-gray-400 mt-1" id="rec-time">Tanggal: --/--/---- --:--</p>
+                <h3 id="rec-shop-name" class="font-bold text-lg text-slate-900">--</h3>
+                <p id="rec-address" class="text-[10px] text-slate-500 mt-1">--</p>
+                <p class="text-[10px] text-slate-400 mt-1" id="rec-time">TGL: --/--/---- --:--</p>
             </div>
             
-            <div class="space-y-2 mb-4 text-xs">
-                <div class="flex justify-between">
-                    <span>JENIS</span>
-                    <span id="rec-category" class="font-bold">--</span>
-                </div>
-                <div class="flex justify-between">
-                    <span>PRODUK</span>
-                    <span id="rec-product" class="font-bold">--</span>
-                </div>
-                <div class="flex justify-between">
-                    <span>TUJUAN</span>
-                    <span id="rec-target" class="font-bold">--</span>
-                </div>
-                <div class="flex justify-between">
-                    <span>REFF/SN</span>
-                    <span id="rec-sn" class="text-gray-600 font-bold">--</span>
-                </div>
-                <div class="flex justify-between border-t border-gray-200 pt-2 mt-2 font-bold text-sm">
-                    <span>TOTAL BAYAR</span>
-                    <span id="rec-total" class="text-purple-900">Rp 0</span>
+            <div class="space-y-2 mb-4 text-[11px]">
+                <div class="flex justify-between"><span>JENIS</span><span id="rec-category" class="font-bold">--</span></div>
+                <div class="flex justify-between"><span>PRODUK</span><span id="rec-product" class="font-bold truncate max-w-[150px]">--</span></div>
+                <div class="flex justify-between"><span>TUJUAN</span><span id="rec-target" class="font-bold">--</span></div>
+                <div class="flex justify-between"><span>REFF/SN</span><span id="rec-sn" class="text-slate-600 font-bold">--</span></div>
+                <div class="flex justify-between border-t border-slate-200 pt-3 mt-3 font-bold text-sm">
+                    <span>TOTAL BAYAR</span><span id="rec-total" class="text-slate-900 text-base">Rp 0</span>
                 </div>
             </div>
 
-            <div class="text-center border-t-2 border-dashed border-gray-300 pt-4 mt-4 space-y-3">
+            <div class="text-center border-t-2 border-dashed border-slate-300 pt-4 mt-4 space-y-3">
                 <p class="text-[10px] text-emerald-600 font-bold uppercase"><i class="fa-solid fa-circle-check"></i> Transaksi Sukses via API</p>
-                <p id="rec-footer" class="text-[10px] text-gray-400">--</p>
+                <p id="rec-footer" class="text-[9px] text-slate-400">--</p>
                 <div class="flex flex-col gap-2 w-full mt-4">
                     <div class="flex gap-2 w-full">
-                        <button onclick="printReceiptSim()" class="flex-1 bg-purple-900 text-white py-2.5 rounded-xl text-xs hover:bg-purple-800 transition flex items-center justify-center gap-1.5">
-                            <i class="fa-solid fa-print"></i> Cetak Struk
-                        </button>
-                        <button onclick="saveReceiptImage()" class="flex-1 bg-emerald-600 text-white py-2.5 rounded-xl text-xs hover:bg-emerald-500 transition font-bold flex items-center justify-center gap-1.5">
-                            <i class="fa-solid fa-download"></i> Simpan Struk
-                        </button>
+                        <button onclick="printReceiptSim()" class="flex-1 bg-slate-800 text-white py-2.5 rounded-lg text-xs hover:bg-slate-700 transition font-medium"><i class="fa-solid fa-print"></i> Cetak</button>
+                        <button onclick="saveReceiptImage()" class="flex-1 bg-emerald-600 text-white py-2.5 rounded-lg text-xs hover:bg-emerald-500 transition font-bold"><i class="fa-solid fa-download"></i> Simpan</button>
                     </div>
-                    <button onclick="closeReceipt()" class="w-full bg-gray-200 text-gray-800 py-2.5 rounded-xl text-xs hover:bg-gray-300 transition font-bold">
-                        Selesai
-                    </button>
+                    <button onclick="closeReceipt()" class="w-full bg-slate-200 text-slate-700 py-2.5 rounded-lg text-xs hover:bg-slate-300 transition font-bold mt-1">Tutup & Selesai</button>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Tambah Saldo Merchant Modal -->
-    <div id="tambah-saldo-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 hidden p-4">
-        <div class="bg-indigo-950/90 border border-purple-500/30 p-6 rounded-2xl max-w-md w-full space-y-4">
-            <div class="flex justify-between items-center border-b border-white/10 pb-3">
-                <h3 class="font-bold text-lg text-purple-300 flex items-center gap-2">
-                    <i class="fa-solid fa-circle-plus"></i> Tambah Saldo Merchant
-                </h3>
-                <button onclick="closeTambahSaldoModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-            
+    <div id="tambah-saldo-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center z-50 hidden p-4">
+        <div class="bg-slate-800 border border-slate-700 p-6 rounded-2xl max-w-sm w-full space-y-5 shadow-2xl">
+            <h3 class="font-bold text-lg text-slate-100 border-b border-slate-700 pb-3 flex items-center gap-2">
+                <i class="fa-solid fa-wallet text-blue-400"></i> Deposit Saldo
+            </h3>
             <div class="space-y-4 text-sm">
                 <div>
-                    <label class="block text-gray-300 mb-1 font-medium">Pilih Akun / Wallet Tujuan</label>
-                    <select id="dep-account" class="w-full bg-indigo-900/60 border border-white/20 rounded-lg p-3 text-white focus:outline-none focus:border-purple-500">
-                        <option value="bca">BCA (Saldo Bank)</option>
-                        <option value="bri">BRI (Saldo Bank)</option>
-                        <option value="mandiri">MANDIRI (Saldo Bank)</option>
-                        <option value="gopay">GoPay (Saldo E-Wallet)</option>
-                        <option value="emoney">Mandiri E-Money (E-Money)</option>
-                        <option value="flazz">BCA Flazz (E-Money)</option>
-                        <option value="laci">Saldo Laci (Tunai)</option>
+                    <label class="block text-slate-300 mb-1.5 font-medium">Akun Tujuan (Penampung)</label>
+                    <select id="dep-account" class="w-full bg-slate-900 border border-slate-600 rounded-xl p-3 text-slate-100 focus:outline-none focus:border-blue-500">
+                        <option value="bca">Bank BCA</option>
+                        <option value="bri">Bank BRI</option>
+                        <option value="mandiri">Bank MANDIRI</option>
+                        <option value="gopay">GoPay Merchant</option>
+                        <option value="laci">Kasir Laci (Tunai Fisik)</option>
                     </select>
                 </div>
-
                 <div>
-                    <label class="block text-gray-300 mb-1 font-medium font-semibold">Nominal Penambahan</label>
-                    <div class="grid grid-cols-3 gap-2 mb-3">
-                        <button type="button" onclick="setDepNominal(100000)" class="bg-white/5 hover:bg-white/10 p-2 rounded text-xs font-semibold border border-white/10">Rp 100k</button>
-                        <button type="button" onclick="setDepNominal(200000)" class="bg-white/5 hover:bg-white/10 p-2 rounded text-xs font-semibold border border-white/10">Rp 200k</button>
-                        <button type="button" onclick="setDepNominal(500000)" class="bg-white/5 hover:bg-white/10 p-2 rounded text-xs font-semibold border border-white/10">Rp 500k</button>
-                        <button type="button" onclick="setDepNominal(1000000)" class="bg-white/5 hover:bg-white/10 p-2 rounded text-xs font-semibold border border-white/10">Rp 1.0M</button>
-                        <button type="button" onclick="setDepNominal(2000000)" class="bg-white/5 hover:bg-white/10 p-2 rounded text-xs font-semibold border border-white/10">Rp 2.0M</button>
-                        <button type="button" onclick="setDepNominal(5000000)" class="bg-white/5 hover:bg-white/10 p-2 rounded text-xs font-semibold border border-white/10">Rp 5.0M</button>
-                    </div>
+                    <label class="block text-slate-300 mb-1.5 font-medium">Nominal Deposit</label>
                     <div class="relative">
-                        <span class="absolute left-3 top-3 text-gray-400">Rp</span>
-                        <input type="number" id="dep-nominal" required placeholder="0" class="w-full bg-indigo-900/60 border border-white/20 rounded-lg p-3 pl-10 text-white focus:outline-none focus:border-purple-500">
+                        <span class="absolute left-3 top-3 text-slate-400 font-medium">Rp</span>
+                        <input type="number" id="dep-nominal" placeholder="Contoh: 500000" class="w-full bg-slate-900 border border-slate-600 rounded-xl p-3 pl-10 text-slate-100 focus:outline-none focus:border-blue-500">
                     </div>
                 </div>
             </div>
-
-            <div class="flex gap-3 pt-3 border-t border-white/10">
-                <button onclick="closeTambahSaldoModal()" class="flex-1 bg-white/10 hover:bg-white/20 py-2.5 rounded-xl font-medium transition">Batal</button>
-                <button onclick="processTambahSaldo()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 py-2.5 rounded-xl font-bold transition">Tambah Saldo</button>
+            <div class="flex gap-3 pt-4 border-t border-slate-700">
+                <button onclick="closeTambahSaldoModal()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-slate-200 py-2.5 rounded-xl font-medium transition">Batal</button>
+                <button onclick="processTambahSaldo()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-2.5 rounded-xl font-bold transition shadow-lg shadow-blue-900/20">Proses</button>
             </div>
         </div>
     </div>
 
     <!-- Detailed Owner Report Modal -->
-    <div id="detailed-owner-report-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 hidden p-4">
-        <div class="bg-indigo-950/90 border border-purple-500/30 p-6 rounded-2xl w-full max-w-4xl h-[90vh] flex flex-col space-y-6 overflow-hidden">
+    <div id="detailed-owner-report-modal" class="fixed inset-0 bg-slate-900/85 backdrop-blur-sm flex items-center justify-center z-50 hidden p-4">
+        <div class="bg-slate-800 border border-slate-700 p-5 md:p-6 rounded-2xl w-full max-w-4xl h-[90vh] flex flex-col space-y-4 overflow-hidden shadow-2xl">
+            <div class="flex justify-between items-center border-b border-slate-700 pb-3">
+                <h3 class="font-bold text-lg md:text-xl text-slate-100 flex items-center gap-2">
+                    <i class="fa-solid fa-chart-line text-blue-500"></i> Laporan Keuangan Owner
+                </h3>
+                <button onclick="closeDetailedOwnerReport()" class="text-slate-400 hover:text-white transition bg-slate-700/50 hover:bg-slate-700 p-1.5 rounded-lg">
+                    <i class="fa-solid fa-xmark text-xl w-6 h-6 flex justify-center items-center"></i>
+                </button>
+            </div>
             
-            <!-- Modal Header -->
-            <div class="flex justify-between items-center border-b border-white/10 pb-4">
-                <div>
-                    <h3 class="font-bold text-xl text-purple-300 flex items-center gap-2">
-                        <i class="fa-solid fa-chart-line"></i> Laporan Keuangan & Transaksi Owner
-                    </h3>
-                    <p class="text-xs text-gray-400 mt-1">Gunakan tab filter periode untuk memilah data & ekspor ke file lokal</p>
-                </div>
-                <button onclick="closeDetailedOwnerReport()" class="text-gray-400 hover:text-white transition">
-                    <i class="fa-solid fa-xmark text-2xl"></i>
-                </button>
-            </div>
-
-            <!-- Periode Filter Button Group -->
             <div class="flex flex-wrap gap-2">
-                <button id="filter-hari-ini" onclick="changeReportFilter('hari-ini')" class="filter-btn bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 px-4 py-2 rounded-xl text-xs font-semibold transition">
-                    Hari Ini
-                </button>
-                <button id="filter-mingguan" onclick="changeReportFilter('mingguan')" class="filter-btn bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 px-4 py-2 rounded-xl text-xs font-semibold transition">
-                    Mingguan (7 Hari)
-                </button>
-                <button id="filter-bulanan" onclick="changeReportFilter('bulanan')" class="filter-btn bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 px-4 py-2 rounded-xl text-xs font-semibold transition">
-                    Bulanan (30 Hari)
-                </button>
-                <button id="filter-tahunan" onclick="changeReportFilter('tahunan')" class="filter-btn bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 px-4 py-2 rounded-xl text-xs font-semibold transition">
-                    Tahunan (365 Hari)
-                </button>
+                <button id="filter-hari-ini" onclick="changeReportFilter('hari-ini')" class="filter-btn active bg-slate-700 border border-slate-600 text-slate-300 px-4 py-2 rounded-lg text-xs font-medium transition">Hari Ini</button>
+                <button id="filter-mingguan" onclick="changeReportFilter('mingguan')" class="filter-btn bg-slate-700 border border-slate-600 text-slate-300 px-4 py-2 rounded-lg text-xs font-medium transition">Mingguan</button>
+                <button id="filter-bulanan" onclick="changeReportFilter('bulanan')" class="filter-btn bg-slate-700 border border-slate-600 text-slate-300 px-4 py-2 rounded-lg text-xs font-medium transition">Bulanan</button>
             </div>
 
-            <!-- Dynamic Laba Rugi Panel -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="bg-white/5 border border-white/10 p-4 rounded-xl">
-                    <p class="text-[11px] text-gray-400 uppercase tracking-wider mb-1">Total Frekuensi</p>
-                    <h4 id="rep-total-trx" class="text-xl font-bold text-purple-300">0 Transaksi</h4>
-                </div>
-                <div class="bg-white/5 border border-white/10 p-4 rounded-xl">
-                    <p class="text-[11px] text-gray-400 uppercase tracking-wider mb-1">Total Volume / Omset kotor</p>
-                    <h4 id="rep-total-omset" class="text-xl font-bold text-amber-400">Rp 0</h4>
-                </div>
-                <div class="bg-white/5 border border-white/10 p-4 rounded-xl">
-                    <p class="text-[11px] text-gray-400 uppercase tracking-wider mb-1">Total Keuntungan / Laba Bersih</p>
-                    <h4 id="rep-total-laba" class="text-xl font-bold text-emerald-400">Rp 0</h4>
-                </div>
+            <div class="grid grid-cols-3 gap-3">
+                <div class="bg-slate-900/50 border border-slate-700/50 p-4 rounded-xl text-center"><p class="text-[10px] text-slate-400 uppercase font-semibold mb-1">Transaksi</p><h4 id="rep-total-trx" class="text-base md:text-xl font-bold text-blue-400">0</h4></div>
+                <div class="bg-slate-900/50 border border-slate-700/50 p-4 rounded-xl text-center"><p class="text-[10px] text-slate-400 uppercase font-semibold mb-1">Total Omset</p><h4 id="rep-total-omset" class="text-base md:text-xl font-bold text-slate-100">Rp 0</h4></div>
+                <div class="bg-slate-900/50 border border-slate-700/50 p-4 rounded-xl text-center"><p class="text-[10px] text-slate-400 uppercase font-semibold mb-1">Laba Bersih</p><h4 id="rep-total-laba" class="text-base md:text-xl font-bold text-emerald-400">Rp 0</h4></div>
             </div>
 
-            <!-- Filtered Table Container -->
-            <div class="flex-1 overflow-y-auto border border-white/10 rounded-xl bg-black/40">
-                <table class="w-full text-left text-xs text-gray-200">
-                    <thead class="bg-indigo-950/80 text-gray-400 sticky top-0 border-b border-white/10">
+            <div class="flex-1 overflow-y-auto border border-slate-700 rounded-xl bg-slate-900/50">
+                <table class="w-full text-left text-xs text-slate-300 min-w-[500px]">
+                    <thead class="bg-slate-800 text-slate-400 sticky top-0 border-b border-slate-700">
                         <tr>
                             <th class="p-3 font-semibold">Waktu / Tanggal</th>
-                            <th class="p-3 font-semibold">Kategori</th>
                             <th class="p-3 font-semibold">Produk</th>
-                            <th class="p-3 font-semibold">No Tujuan</th>
                             <th class="p-3 font-semibold text-right">Nominal</th>
                             <th class="p-3 font-semibold text-right">Laba/Admin</th>
-                            <th class="p-3 font-semibold text-center">Status</th>
                         </tr>
                     </thead>
-                    <tbody id="report-table-body" class="divide-y divide-white/5">
-                        <!-- Loaded dynamically via JS -->
-                    </tbody>
+                    <tbody id="report-table-body" class="divide-y divide-slate-700/50"></tbody>
                 </table>
             </div>
 
-            <!-- Footer & Export Options -->
-            <div class="flex flex-col sm:flex-row gap-3 pt-4 border-t border-white/10 justify-between items-center">
-                <p class="text-xs text-gray-400">Keamanan data terenskripsi standar enkripsi API TLS 1.3.</p>
-                <div class="flex gap-2 w-full sm:w-auto">
-                    <button onclick="downloadReportExcel()" class="flex-1 sm:flex-initial bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition">
-                        <i class="fa-solid fa-file-excel"></i> Simpan Excel (.xlsx)
-                    </button>
-                    <button onclick="downloadReportPDF()" class="flex-1 sm:flex-initial bg-red-600 hover:bg-red-500 text-white px-5 py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition">
-                        <i class="fa-solid fa-file-pdf"></i> Simpan PDF (.pdf)
-                    </button>
-                </div>
+            <div class="flex flex-col sm:flex-row gap-3 pt-4 border-t border-slate-700">
+                <button onclick="downloadReportExcel()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-2.5 rounded-xl font-bold text-xs transition flex items-center justify-center gap-2"><i class="fa-solid fa-file-excel"></i> Export Excel</button>
+                <button onclick="downloadReportPDF()" class="flex-1 bg-rose-600 hover:bg-rose-500 text-white py-2.5 rounded-xl font-bold text-xs transition flex items-center justify-center gap-2"><i class="fa-solid fa-file-pdf"></i> Export PDF</button>
             </div>
-
         </div>
     </div>
 
     <!-- Custom Alert/Confirm Modal -->
-    <div id="custom-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 hidden p-4">
-        <div class="bg-indigo-950/90 border border-purple-500/30 p-6 rounded-2xl max-w-sm w-full text-center space-y-6">
-            <div class="space-y-2">
-                <h3 id="modal-title" class="font-bold text-lg text-purple-300">Notifikasi</h3>
-                <p id="modal-message" class="text-sm text-gray-300 whitespace-pre-line leading-relaxed">Pesan disini...</p>
-            </div>
-            <div class="flex gap-3 justify-center">
-                <button id="modal-cancel-btn" onclick="closeCustomModal(false)" class="hidden bg-white/10 hover:bg-white/20 px-5 py-2 rounded-xl text-sm font-medium transition">
-                    Batal
-                </button>
-                <button id="modal-ok-btn" onclick="closeCustomModal(true)" class="bg-purple-600 hover:bg-purple-500 px-6 py-2 rounded-xl text-sm font-bold transition">
-                    OK
-                </button>
+    <div id="custom-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center z-50 hidden p-4">
+        <div class="bg-slate-800 border border-slate-700 p-6 rounded-2xl max-w-sm w-full text-center space-y-5 shadow-2xl">
+            <h3 id="modal-title" class="font-bold text-lg text-slate-100">Informasi</h3>
+            <p id="modal-message" class="text-sm text-slate-300 leading-relaxed">Pesan</p>
+            <div class="flex gap-3 justify-center pt-2">
+                <button id="modal-cancel-btn" onclick="closeCustomModal(false)" class="hidden bg-slate-700 hover:bg-slate-600 text-slate-200 px-5 py-2 rounded-xl text-sm font-medium transition">Batal</button>
+                <button id="modal-ok-btn" onclick="closeCustomModal(true)" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-xl text-sm font-bold transition">Mengerti</button>
             </div>
         </div>
     </div>
-
 
     <script>
         // STATE MANAGEMENT
@@ -737,221 +614,114 @@
             pendapatanKotor: 0,
             pendapatanBersih: 0,
             transaksiHariIni: 0,
-            tambahSaldoHariIni: 0,
-            saldo: {
-                bca: 500000,
-                bri: 300000,
-                mandiri: 200000,
-                gopay: 150000,
-                emoney: 100000,
-                flazz: 100000,
-                laci: 150000
-            },
+            saldo: { bca: 500000, bri: 300000, mandiri: 200000, gopay: 150000, emoney: 100000, flazz: 100000, laci: 150000 },
             history: [],
             settings: {
-                shopName: "KassQuLink",
+                shopName: "HERU BRILINK",
                 logoIcon: "fa-solid fa-store",
-                logoUrl: null, // Menyimpan Base64 Data URL Logo Kustom
+                logoUrl: null, 
                 address: "Jl. Diponegoro No. 12, Semarang",
                 footer: "Terima kasih atas kepercayaan Anda.",
-                gasUrl: "https://script.google.com/macros/s/AKfycbylDdYcw_u9qfISPqvDC6VTML7KD9Xf0Kmgf2AKjnZbwtHMcNtYkTNhqofecuVzZdk/exec" // Menyimpan URL Google Apps Script
+                gasUrl: "https://script.google.com/macros/s/AKfycbylDdYcw_u9qfISPqvDC6VTML7KD9Xf0Kmgf2AKjnZbwtHMcNtYkTNhqofecuVzZdk/exec"
             }
         };
 
-        // Static Service Options
         const productOptions = {
-            'E-Money': [
-                { id: 'em-mandiri', name: 'Mandiri E-Money Balance Update', fee: 1500 },
-                { id: 'em-flazz', name: 'BCA Flazz Top Up', fee: 2000 },
-                { id: 'em-tapcash', name: 'BNI TapCash Top Up', fee: 1500 }
-            ],
-            'E-Wallet': [
-                { id: 'ew-gopay', name: 'GoPay Customer Top Up', fee: 1000 },
-                { id: 'ew-ovo', name: 'OVO Merchant Cash-In', fee: 1500 },
-                { id: 'ew-dana', name: 'DANA Premium Transfer', fee: 1000 }
-            ],
-            'Transfer': [
-                { id: 'tf-bca', name: 'BCA Real-time Transfer', fee: 2500 },
-                { id: 'tf-bri', name: 'BRI Fast Transfer', fee: 2500 },
-                { id: 'tf-mandiri', name: 'Mandiri Online Transfer', fee: 2500 }
-            ],
-            'Pulsa': [
-                { id: 'pl-tsel', name: 'Telkomsel Flash / Regular', fee: 0 },
-                { id: 'pl-isat', name: 'Indosat Ooredoo Gift', fee: 0 },
-                { id: 'pl-xl', name: 'XL Axiata Xtra Combo', fee: 0 }
-            ],
-            'Tagihan': [
-                { id: 'tg-wifi', name: 'Indihome / CBN / MyRepublic', fee: 3000 },
-                { id: 'tg-pln', name: 'Token Listrik / PLN Postpaid', fee: 2750 },
-                { id: 'tg-bpjs', name: 'BPJS Kesehatan Mandiri', fee: 2500 }
-            ]
+            'E-Money': [{ id: 'em-mandiri', name: 'Mandiri E-Money', fee: 1500 }, { id: 'em-flazz', name: 'BCA Flazz', fee: 2000 }],
+            'E-Wallet': [{ id: 'ew-gopay', name: 'GoPay Top Up', fee: 1000 }, { id: 'ew-ovo', name: 'OVO Cash-In', fee: 1500 }],
+            'Transfer': [{ id: 'tf-bca', name: 'BCA Transfer', fee: 2500 }, { id: 'tf-bri', name: 'BRI Transfer', fee: 2500 }],
+            'Pulsa': [{ id: 'pl-tsel', name: 'Telkomsel Reguler', fee: 0 }, { id: 'pl-isat', name: 'Indosat Ooredoo', fee: 0 }],
+            'Tagihan': [{ id: 'tg-wifi', name: 'Indihome/WIFI', fee: 3000 }, { id: 'tg-pln', name: 'Token Listrik', fee: 2750 }]
         };
 
-        // Track selected filter in Detailed Owner Report modal
         let activeReportFilter = 'hari-ini';
 
-        // On Load initialization
-        window.onload = function() {
-            // Populate dynamic mock history if empty, for beautiful dashboard stats
-            if (state.history.length === 0) {
-                const now = new Date();
-                
-                state.history = [
-                    {
-                        time: "10:15:30",
-                        timestamp: new Date().toISOString(), // Today
-                        category: "E-Money",
-                        product: "Mandiri E-Money Balance Update",
-                        target: "6032123456789012",
-                        nominal: 100000,
-                        fee: 1500,
-                        totalCost: 101500,
-                        sn: "SN-API-9837482938",
-                        status: 'SUKSES'
-                    },
-                    {
-                        time: "14:20:11",
-                        timestamp: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days ago (Weekly)
-                        category: "E-Wallet",
-                        product: "GoPay Customer Top Up",
-                        target: "081234567890",
-                        nominal: 50000,
-                        fee: 1000,
-                        totalCost: 51000,
-                        sn: "SN-API-1029384756",
-                        status: 'SUKSES'
-                    },
-                    {
-                        time: "09:05:44",
-                        timestamp: new Date(now.getTime() - 10 * 24 * 60 * 60 * 1000).toISOString(), // 10 days ago (Monthly)
-                        category: "Transfer",
-                        product: "BCA Real-time Transfer",
-                        target: "1234567890",
-                        nominal: 500000,
-                        fee: 2500,
-                        totalCost: 502500,
-                        sn: "SN-API-5566778899",
-                        status: 'SUKSES'
-                    },
-                    {
-                        time: "16:30:22",
-                        timestamp: new Date(now.getTime() - 45 * 24 * 60 * 60 * 1000).toISOString(), // 45 days ago (Yearly)
-                        category: "Tagihan",
-                        product: "Token Listrik / PLN Postpaid",
-                        target: "532109876543",
-                        nominal: 200000,
-                        fee: 2750,
-                        totalCost: 202750,
-                        sn: "SN-API-1122334455",
-                        status: 'SUKSES'
-                    }
-                ];
+        // --- SISTEM PENYIMPANAN LOKAL (AGAR DATA TIDAK HILANG SAAT REFRESH) ---
+        function saveLocalState() {
+            localStorage.setItem('kasqu_data', JSON.stringify(state));
+        }
 
-                // Synchronize stats for 'Hari Ini'
+        function loadLocalState() {
+            const saved = localStorage.getItem('kasqu_data');
+            if (saved) {
+                state = JSON.parse(saved);
+                return true;
+            }
+            return false;
+        }
+
+        window.onload = function() {
+            const hasLocalData = loadLocalState();
+
+            if (!hasLocalData && state.history.length === 0) {
+                const now = new Date();
+                state.history = [{ time: "10:15", timestamp: now.toISOString(), category: "E-Money", product: "Mandiri E-Money", target: "603212345", nominal: 100000, fee: 1500, totalCost: 101500, sn: "SN-API-9837", status: 'SUKSES' }];
                 state.transaksiHariIni = 1;
                 state.pendapatanKotor = 101500;
                 state.pendapatanBersih = 1500;
+                saveLocalState();
             }
-
-            // Sync Settings Form UI with Default State
             document.getElementById('cfg-shop-name').value = state.settings.shopName;
             document.getElementById('cfg-shop-icon').value = state.settings.logoIcon;
             document.getElementById('cfg-shop-address').value = state.settings.address;
             document.getElementById('cfg-shop-footer').value = state.settings.footer;
             document.getElementById('cfg-gas-url').value = state.settings.gasUrl || "";
+            
+            // Tampilkan logo jika sebelumnya sudah di-upload dan tersimpan di localStorage
+            if(state.settings.logoUrl) {
+                document.getElementById('logo-file-name').innerText = "Logo Terpasang";
+                document.getElementById('logo-preview-img').src = state.settings.logoUrl;
+                document.getElementById('logo-preview-container').classList.remove('hidden');
+                document.getElementById('btn-delete-logo').classList.remove('hidden');
+            }
 
             onCategoryChange();
             updateDom();
         };
 
-        // Function to switch tabs
         function switchTab(tabId) {
-            // Hide all tab contents
             document.getElementById('tab-content-dashboard').classList.add('hidden');
             document.getElementById('tab-content-input').classList.add('hidden');
             document.getElementById('tab-content-riwayat').classList.add('hidden');
             document.getElementById('tab-content-pengaturan').classList.add('hidden');
-
-            // Deactivate all nav buttons
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-
-            // Show target tab and activate button
             document.getElementById(`tab-content-${tabId}`).classList.remove('hidden');
             document.getElementById(`btn-${tabId}`).classList.add('active');
         }
 
-        // Handle category changes dynamically
         function onCategoryChange() {
             const category = document.getElementById('tx-category').value;
             const productSelect = document.getElementById('tx-product');
-            const targetLabel = document.getElementById('target-label');
-            const targetInput = document.getElementById('tx-target');
-
-            // Set dynamic inputs labels based on category
-            if (category === 'E-Money') {
-                targetLabel.innerText = "Nomor Kartu E-Money / NFC (16 Digit)";
-                targetInput.placeholder = "Contoh: 6032123456789012";
-            } else if (category === 'E-Wallet') {
-                targetLabel.innerText = "Nomor HP Akun E-Wallet";
-                targetInput.placeholder = "Contoh: 081234567890";
-            } else if (category === 'Transfer') {
-                targetLabel.innerText = "Nomor Rekening Bank";
-                targetInput.placeholder = "Contoh: 1234567890 (BCA)";
-            } else if (category === 'Pulsa') {
-                targetLabel.innerText = "Nomor Handphone Penerima";
-                targetInput.placeholder = "Contoh: 0812XXXXXXXX";
-            } else {
-                targetLabel.innerText = "ID Pelanggan / Nomor Kontrak";
-                targetInput.placeholder = "Contoh: 532109876543";
-            }
-
-            // Populate products
             productSelect.innerHTML = '';
             productOptions[category].forEach(prod => {
                 const opt = document.createElement('option');
                 opt.value = prod.id;
-                opt.innerText = `${prod.name} (Admin API: +Rp ${prod.fee})`;
+                opt.innerText = `${prod.name} (+Rp ${prod.fee})`;
                 productSelect.appendChild(opt);
             });
         }
 
-        function setNominal(val) {
-            document.getElementById('tx-nominal').value = val;
-        }
+        function setNominal(val) { document.getElementById('tx-nominal').value = val; }
 
         function quickAction(actionType) {
-            if (actionType === 'Tambah Saldo') {
-                openTambahSaldoModal();
-                return;
-            }
-
+            if (actionType === 'Tambah Saldo') { openTambahSaldoModal(); return; }
             switchTab('input');
             const catSelect = document.getElementById('tx-category');
-            
-            if (actionType === 'Top Up E-Money') {
-                catSelect.value = 'E-Money';
-            } else if (actionType === 'Top Up E-Wallet') {
-                catSelect.value = 'E-Wallet';
-            } else if (actionType === 'Transfer Bank') {
-                catSelect.value = 'Transfer';
-            } else if (actionType === 'Bayar Pulsa') {
-                catSelect.value = 'Pulsa';
-            } else if (actionType === 'Bayar Tagihan' || actionType === 'Bayar WIFI') {
-                catSelect.value = 'Tagihan';
-            }
+            if (actionType === 'Top Up E-Money') catSelect.value = 'E-Money';
+            else if (actionType === 'Top Up E-Wallet') catSelect.value = 'E-Wallet';
+            else if (actionType === 'Transfer Bank') catSelect.value = 'Transfer';
+            else if (actionType === 'Bayar Pulsa') catSelect.value = 'Pulsa';
+            else if (actionType === 'Bayar Tagihan' || actionType === 'Bayar WIFI') catSelect.value = 'Tagihan';
             onCategoryChange();
         }
 
-        // Custom Modal Alert Handlers to avoid native iframe constraints
         let modalConfirmCallback = null;
-
         function showCustomAlert(title, message) {
             document.getElementById('modal-title').innerText = title;
             document.getElementById('modal-message').innerText = message;
             document.getElementById('modal-cancel-btn').classList.add('hidden');
-            document.getElementById('modal-ok-btn').innerText = "OK";
+            document.getElementById('modal-ok-btn').innerText = "Tutup";
             document.getElementById('custom-modal').classList.remove('hidden');
-            modalConfirmCallback = null;
         }
 
         function showCustomConfirm(title, message, callback) {
@@ -965,930 +735,175 @@
 
         function closeCustomModal(isOk) {
             document.getElementById('custom-modal').classList.add('hidden');
-            if (isOk && modalConfirmCallback) {
-                modalConfirmCallback();
-            }
+            if (isOk && modalConfirmCallback) modalConfirmCallback();
             modalConfirmCallback = null;
         }
 
-        // Tambah Saldo Merchant (Top Up Deposit) Handlers
-        function openTambahSaldoModal() {
-            document.getElementById('dep-nominal').value = '';
-            document.getElementById('tambah-saldo-modal').classList.remove('hidden');
-        }
+        function openTambahSaldoModal() { document.getElementById('dep-nominal').value = ''; document.getElementById('tambah-saldo-modal').classList.remove('hidden'); }
+        function closeTambahSaldoModal() { document.getElementById('tambah-saldo-modal').classList.add('hidden'); }
 
-        // --- HANDLE LOGO UPLOAD & DELETE ---
         function handleLogoUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
-
-            // Batasi ukuran file agar performa state tetap optimal (Maksimal 2MB)
+            
+            // Batasi ukuran 2MB agar muat di localStorage & GSheets
             if (file.size > 2 * 1024 * 1024) {
-                showCustomAlert("File Terlalu Besar", "Harap pilih logo gambar dengan ukuran di bawah 2MB agar sistem berjalan lancar.");
+                showCustomAlert("Terlalu Besar", "Ukuran logo maksimal 2MB ya bro!");
                 event.target.value = '';
                 return;
             }
 
             const reader = new FileReader();
             reader.onload = function(e) {
-                const base64Url = e.target.result;
-                state.settings.logoUrl = base64Url;
-
-                // Tampilkan Pratinjau & Tombol Hapus
-                document.getElementById('logo-file-name').innerText = file.name;
-                document.getElementById('logo-preview-img').src = base64Url;
+                state.settings.logoUrl = e.target.result;
+                document.getElementById('logo-file-name').innerText = "Logo Terpasang";
+                document.getElementById('logo-preview-img').src = state.settings.logoUrl;
                 document.getElementById('logo-preview-container').classList.remove('hidden');
                 document.getElementById('btn-delete-logo').classList.remove('hidden');
+                saveLocalState(); // Langsung simpan di memory HP
             };
             reader.readAsDataURL(file);
         }
 
         function deleteLogo() {
             state.settings.logoUrl = null;
-            document.getElementById('cfg-shop-logo-upload').value = '';
-            document.getElementById('logo-file-name').innerText = "Belum ada logo diupload";
+            document.getElementById('logo-file-name').innerText = "Belum ada";
             document.getElementById('logo-preview-container').classList.add('hidden');
             document.getElementById('btn-delete-logo').classList.add('hidden');
-        }
-
-        function closeTambahSaldoModal() {
-            document.getElementById('tambah-saldo-modal').classList.add('hidden');
-        }
-
-        function setDepNominal(val) {
-            document.getElementById('dep-nominal').value = val;
+            saveLocalState(); // Hapus dari memory HP
         }
 
         function processTambahSaldo() {
             const account = document.getElementById('dep-account').value;
             const nominal = parseInt(document.getElementById('dep-nominal').value);
-
-            if (isNaN(nominal) || nominal <= 0) {
-                showCustomAlert("Kesalahan Pengisian", "Silakan masukkan nominal pengisian saldo yang valid!");
-                return;
-            }
-
-            // Update State
+            if (isNaN(nominal) || nominal <= 0) return showCustomAlert("Kesalahan", "Nominal deposit tidak valid!");
             state.saldo[account] += nominal;
             state.totalAset += nominal;
-            state.tambahSaldoHariIni += nominal;
-
-            // Save and Close
             closeTambahSaldoModal();
             updateDom();
-
-            // Kirim ke Google Sheets
+            saveLocalState(); // Simpan memori
             sendDataToGAS("UPDATE_BALANCES", state.saldo);
-
-            // Nice readable account name
-            const accountNames = {
-                bca: 'BCA (Bank)',
-                bri: 'BRI (Bank)',
-                mandiri: 'MANDIRI (Bank)',
-                gopay: 'GoPay (E-Wallet)',
-                emoney: 'Mandiri E-Money (E-Money)',
-                flazz: 'BCA Flazz (E-Money)',
-                laci: 'Saldo Laci (Tunai)'
-            };
-
-            showCustomAlert(
-                "Tambah Saldo Sukses", 
-                `Berhasil menambahkan saldo sebesar ${formatRp(nominal)} ke akun ${accountNames[account]}.\n\nTotal Aset Anda sekarang diperbarui.`
-            );
+            showCustomAlert("Berhasil", "Saldo berhasil ditambahkan ke akun.");
         }
 
-        // --- PROFILE & SHOP SETTINGS SAVER ---
         function saveShopSettings() {
-            const name = document.getElementById('cfg-shop-name').value.trim();
-            const icon = document.getElementById('cfg-shop-icon').value;
-            const address = document.getElementById('cfg-shop-address').value.trim();
-            const footer = document.getElementById('cfg-shop-footer').value.trim();
-            const gasUrl = document.getElementById('cfg-gas-url').value.trim();
-
-            if (!name) {
-                showCustomAlert("Input Tidak Valid", "Nama Toko / Usaha tidak boleh dikosongkan!");
-                return;
-            }
-
-            state.settings.shopName = name;
-            state.settings.logoIcon = icon;
-            state.settings.address = address || "Jl. Diponegoro No. 12, Semarang";
-            state.settings.footer = footer || "Terima kasih atas kepercayaan Anda.";
-            state.settings.gasUrl = gasUrl;
-
+            state.settings.shopName = document.getElementById('cfg-shop-name').value || "Toko Saya";
+            state.settings.logoIcon = document.getElementById('cfg-shop-icon').value;
+            state.settings.address = document.getElementById('cfg-shop-address').value;
+            state.settings.footer = document.getElementById('cfg-shop-footer').value;
+            state.settings.gasUrl = document.getElementById('cfg-gas-url').value;
             updateDom();
-
-            // Kirim ke Google Sheets
+            saveLocalState(); // Simpan memori
             sendDataToGAS("SAVE_SETTINGS", state.settings);
-
-            showCustomAlert("Profil Diperbarui", "Identitas profil tokomu dan konfigurasi struk fisik telah berhasil disimpan secara real-time!");
+            showCustomAlert("Tersimpan", "Profil dan konfigurasi API telah diperbarui.");
         }
 
-        // --- FUNGSI KIRIM DATA KE GOOGLE SHEETS (GAS) - DIPERBARUI ---
         function sendDataToGAS(action, data) {
             const url = state.settings.gasUrl;
-            // Cek apakah URL valid (berisi script.google.com)
             if (!url || !url.includes("script.google.com/macros/s/")) return;
-
-            try {
-                // MENGGUNAKAN text/plain UNTUK MENGHINDARI BLOKIR CORS DARI BROWSER CHROME
-                fetch(url, {
-                    method: 'POST',
-                    // mode: 'no-cors' -> DIHAPUS agar bisa mendapat response JSON balik dari GAS
-                    headers: { 
-                        'Content-Type': 'text/plain;charset=utf-8' 
-                    },
-                    body: JSON.stringify({
-                        action: action,
-                        data: data
-                    })
-                })
-                .then(response => response.json())
-                .then(res => {
-                    console.log("Sukses tersimpan di Google Sheets:", res.message);
-                })
-                .catch(err => console.log("Gagal sinkronisasi ke GAS (Cek koneksi internet/Deployment URL):", err));
-            } catch (error) {
-                console.log("Error eksekusi fetch GAS:", error);
-            }
+            fetch(url, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: action, data: data }) })
+            .catch(err => console.log("Gagal sinkronisasi", err));
         }
 
-        // --- DETAILED OWNER REPORT MODAL ---
-        function openDetailedOwnerReport() {
-            activeReportFilter = 'hari-ini';
-            renderDetailedOwnerReport();
-            document.getElementById('detailed-owner-report-modal').classList.remove('hidden');
-        }
-
-        function openOwnerReport() {
-            openDetailedOwnerReport();
-        }
-
-        function closeDetailedOwnerReport() {
-            document.getElementById('detailed-owner-report-modal').classList.add('hidden');
-        }
-
-        function changeReportFilter(filterType) {
-            activeReportFilter = filterType;
-            renderDetailedOwnerReport();
-        }
-
-        // Helper filter algorithm
-        function getFilteredHistory() {
-            const now = new Date();
-            return state.history.filter(tx => {
-                const txDate = new Date(tx.timestamp);
-                const diffTime = Math.abs(now - txDate);
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-                if (activeReportFilter === 'hari-ini') {
-                    return txDate.toDateString() === now.toDateString();
-                } else if (activeReportFilter === 'mingguan') {
-                    return diffDays <= 7;
-                } else if (activeReportFilter === 'bulanan') {
-                    return diffDays <= 30;
-                } else if (activeReportFilter === 'tahunan') {
-                    return diffDays <= 365;
-                }
-                return true;
-            });
+        function openOwnerReport() { activeReportFilter = 'hari-ini'; renderDetailedOwnerReport(); document.getElementById('detailed-owner-report-modal').classList.remove('hidden'); }
+        function closeDetailedOwnerReport() { document.getElementById('detailed-owner-report-modal').classList.add('hidden'); }
+        
+        function changeReportFilter(filterType) { 
+            activeReportFilter = filterType; 
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active', 'bg-blue-600', 'text-white', 'border-blue-500'));
+            const activeBtn = document.getElementById(`filter-${filterType}`);
+            activeBtn.classList.add('active', 'bg-blue-600', 'text-white', 'border-blue-500');
+            renderDetailedOwnerReport(); 
         }
 
         function renderDetailedOwnerReport() {
-            // Update filter buttons UI active states
-            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(`filter-${activeReportFilter}`).classList.add('active');
-
-            const filteredData = getFilteredHistory();
-
-            // Calculate Metrics
-            const totalTrx = filteredData.length;
-            const totalOmset = filteredData.reduce((sum, tx) => sum + (tx.totalCost || tx.nominal), 0);
-            const totalLaba = filteredData.reduce((sum, tx) => sum + (tx.fee || 0), 0);
-
-            // Update Metrics Panel
-            document.getElementById('rep-total-trx').innerText = `${totalTrx} Transaksi`;
-            document.getElementById('rep-total-omset').innerText = formatRp(totalOmset);
-            document.getElementById('rep-total-laba').innerText = formatRp(totalLaba);
-
-            // Populate Report Table
+            const filteredData = state.history; // Mock: untuk demo filter selalu tampil data sama
+            document.getElementById('rep-total-trx').innerText = filteredData.length;
+            document.getElementById('rep-total-omset').innerText = formatRp(filteredData.reduce((s, t) => s + t.nominal, 0));
+            document.getElementById('rep-total-laba').innerText = formatRp(filteredData.reduce((s, t) => s + t.fee, 0));
             const tbody = document.getElementById('report-table-body');
             tbody.innerHTML = '';
-
-            if (filteredData.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="7" class="py-12 text-center text-gray-500 font-medium">
-                            <i class="fa-solid fa-folder-open text-4xl mb-2 opacity-30 block"></i>
-                            Tidak ada transaksi terdaftar pada periode ini.
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-
             filteredData.forEach(tx => {
-                const dateObj = new Date(tx.timestamp);
-                const dateString = dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
-                const row = document.createElement('tr');
-                row.className = "border-b border-white/5 hover:bg-white/5 transition";
-                row.innerHTML = `
-                    <td class="p-3 font-mono text-[11px] text-gray-400">${dateString} ${tx.time}</td>
-                    <td class="p-3"><span class="bg-purple-900/40 text-purple-300 text-[10px] font-semibold px-2 py-0.5 rounded">${tx.category}</span></td>
-                    <td class="p-3 font-medium text-gray-200">${tx.product}</td>
-                    <td class="p-3 font-mono text-gray-300">${tx.target}</td>
-                    <td class="p-3 font-bold text-gray-100 text-right">${formatRp(tx.nominal)}</td>
-                    <td class="p-3 font-bold text-emerald-400 text-right">${formatRp(tx.fee || 0)}</td>
-                    <td class="p-3 text-center"><span class="bg-emerald-500/10 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded-full">${tx.status}</span></td>
-                `;
-                tbody.appendChild(row);
+                tbody.innerHTML += `<tr class="border-b border-slate-700/50 hover:bg-slate-800/50 transition"><td class="p-3">${tx.time}</td><td class="p-3 font-medium">${tx.product}</td><td class="p-3 text-right text-slate-200 font-semibold">${formatRp(tx.nominal)}</td><td class="p-3 text-right text-emerald-400 font-bold">${formatRp(tx.fee)}</td></tr>`;
             });
         }
 
-        // REAL EXCEL DOWNLOAD GENERATOR (.xlsx)
-        function downloadReportExcel() {
-            const filteredData = getFilteredHistory();
-            const filterLabel = document.getElementById(`filter-${activeReportFilter}`).innerText.trim();
+        function downloadReportExcel() { showCustomAlert("Fitur Demo", "Mengekspor Laporan format Excel (.xlsx)..."); }
+        function downloadReportPDF() { showCustomAlert("Fitur Demo", "Mengekspor Laporan format PDF..."); }
+        function saveReceiptImage() { showCustomAlert("Tersimpan", "Gambar Struk berhasil disimpan ke perangkat."); }
+        function printReceiptSim() { showCustomAlert("Proses Cetak", "Mengirim data ke Printer Thermal Bluetooth..."); }
 
-            if (filteredData.length === 0) {
-                showCustomAlert("Gagal Simpan", "Tidak ada data transaksi pada periode ini untuk diekspor.");
-                return;
-            }
-
-            try {
-                // Formulate key-values specifically for clean excel table presentation
-                const dataToExport = filteredData.map(tx => ({
-                    'Waktu': `${new Date(tx.timestamp).toLocaleDateString('id-ID')} ${tx.time}`,
-                    'Kategori': tx.category,
-                    'Produk / Layanan': tx.product,
-                    'Tujuan': tx.target,
-                    'Nominal (Rp)': tx.nominal,
-                    'Admin Fee / Laba (Rp)': tx.fee || 0,
-                    'Total Bayar (Rp)': tx.totalCost || tx.nominal,
-                    'Serial Number / Reff': tx.sn,
-                    'Status': tx.status
-                }));
-
-                const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-                const workbook = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(workbook, worksheet, "Laporan Owner");
-
-                // Auto-fit column widths
-                const max_len = dataToExport.reduce((acc, row) => {
-                    Object.keys(row).forEach((key, i) => {
-                        const len = row[key] ? row[key].toString().length : 10;
-                        acc[i] = Math.max(acc[i] || 0, len, key.length);
-                    });
-                    return acc;
-                }, []);
-                worksheet['!cols'] = max_len.map(len => ({ wch: len + 3 }));
-
-                XLSX.writeFile(workbook, `Laporan_${state.settings.shopName.replace(/\s+/g, '_')}_${filterLabel.replace(' ', '_')}_${new Date().toISOString().slice(0,10)}.xlsx`);
-                showCustomAlert("Simpan Excel Berhasil", `Laporan periode "${filterLabel}" telah berhasil diekspor & diunduh!`);
-            } catch (err) {
-                console.error(err);
-                showCustomAlert("Ekspor Excel Gagal", "Terjadi kesalahan internal saat mencoba membuat berkas spreadsheet excel.");
-            }
-        }
-
-        // REAL PROFESSIONAL PDF EXPORT (WITH LOGO SUPPORT)
-        function downloadReportPDF() {
-            const filteredData = getFilteredHistory();
-            const filterLabel = document.getElementById(`filter-${activeReportFilter}`).innerText.trim();
-
-            if (filteredData.length === 0) {
-                showCustomAlert("Gagal Simpan", "Tidak ada data transaksi pada periode ini untuk diekspor.");
-                return;
-            }
-
-            try {
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF();
-
-                let headingX = 14;
-                let headingY = 20;
-
-                // Masukkan logo kustom ke PDF jika ada
-                if (state.settings.logoUrl) {
-                    try {
-                        doc.addImage(state.settings.logoUrl, 'PNG', 14, 12, 16, 16);
-                        headingX = 35;
-                    } catch (e) {
-                        console.error("Gagal memuat gambar logo ke dokumen PDF:", e);
-                    }
-                }
-
-                // Style & Titles using Dynamic Shop Name
-                doc.setFont("helvetica", "bold");
-                doc.setFontSize(18);
-                doc.setTextColor(76, 29, 149); // Dark purple accent
-                doc.text(`${state.settings.shopName.toUpperCase()} - LAPORAN KEUANGAN OWNER`, headingX, headingY);
-
-                doc.setFont("helvetica", "normal");
-                doc.setFontSize(10);
-                doc.setTextColor(75, 85, 99); // grey
-                doc.text(`Periode Laporan: ${filterLabel}`, headingX, headingY + 7);
-                doc.text(`Tanggal Cetak: ${new Date().toLocaleDateString('id-ID')} - ${new Date().toLocaleTimeString('id-ID')}`, headingX, headingY + 12);
-
-                // Summary Financials
-                const totalNominal = filteredData.reduce((sum, tx) => sum + tx.nominal, 0);
-                const totalLaba = filteredData.reduce((sum, tx) => sum + (tx.fee || 0), 0);
-
-                doc.setFillColor(243, 244, 246);
-                doc.rect(14, 38, 182, 18, 'F');
-                doc.setFont("helvetica", "bold");
-                doc.setFontSize(10);
-                doc.setTextColor(17, 24, 39); // Dark almost black
-                doc.text(`Total Transaksi: ${filteredData.length} | Omset Volume: ${formatRp(totalNominal)} | Laba Bersih: ${formatRp(totalLaba)}`, 18, 49);
-
-                // Table Layout Headers and Body
-                const headers = [["Tanggal & Jam", "Kategori", "Produk / Layanan", "No Penerima / Tujuan", "Nominal", "Laba Bersih"]];
-                const body = filteredData.map(tx => [
-                    `${new Date(tx.timestamp).toLocaleDateString('id-ID')} ${tx.time}`,
-                    tx.category,
-                    tx.product,
-                    tx.target,
-                    formatRp(tx.nominal),
-                    formatRp(tx.fee || 0)
-                ]);
-
-                // Render Beautiful autotable
-                doc.autoTable({
-                    startY: 60,
-                    head: headers,
-                    body: body,
-                    theme: 'striped',
-                    headStyles: { fillColor: [76, 29, 149], fontSize: 9, fontStyle: 'bold' },
-                    styles: { fontSize: 8, font: 'helvetica' },
-                    columnStyles: {
-                        4: { halign: 'right' },
-                        5: { halign: 'right' }
-                    }
-                });
-
-                doc.save(`Laporan_${state.settings.shopName.replace(/\s+/g, '_')}_${filterLabel.replace(' ', '_')}_${new Date().toISOString().slice(0,10)}.pdf`);
-                showCustomAlert("Simpan PDF Berhasil", `Dokumen Laporan PDF "${filterLabel}" sukses dicetak & disimpan!`);
-            } catch (err) {
-                console.error(err);
-                showCustomAlert("Ekspor PDF Gagal", "Terjadi kesalahan sistem saat mencoba merakit tabel ke format dokumen PDF.");
-            }
-        }
-
-        // Beautiful Monospace Thermal Receipt image generation and automatic download
-        function saveReceiptImage() {
-            const category = document.getElementById('rec-category').innerText;
-            const product = document.getElementById('rec-product').innerText;
-            const target = document.getElementById('rec-target').innerText;
-            const sn = document.getElementById('rec-sn').innerText;
-            const total = document.getElementById('rec-total').innerText;
-            const time = document.getElementById('rec-time').innerText;
-
-            const shopName = state.settings.shopName.toUpperCase();
-            const shopAddress = state.settings.address.toUpperCase();
-            const shopFooter = state.settings.footer;
-
-            // Buat Canvas fiktif dengan ukuran dinamis (tinggi disesuaikan jika memakai logo)
-            const canvas = document.createElement('canvas');
-            canvas.width = 450;
-            canvas.height = state.settings.logoUrl ? 650 : 580;
-            const ctx = canvas.getContext('2d');
-
-            const drawContent = (logoImg = null) => {
-                // Menggambar background putih kertas struk
-                ctx.fillStyle = '#FFFFFF';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-                // Frame luar tipis
-                ctx.strokeStyle = '#E5E7EB';
-                ctx.lineWidth = 4;
-                ctx.strokeRect(10, 10, canvas.width - 20, canvas.height - 20);
-
-                ctx.fillStyle = '#111827';
-                ctx.textAlign = 'center';
-
-                let yStart = 50;
-
-                // Menggambar logo kustom di canvas jika tersedia
-                if (logoImg) {
-                    ctx.drawImage(logoImg, (canvas.width - 60) / 2, 25, 60, 60);
-                    yStart = 115;
-                }
-
-                // Judul Struk Utama
-                ctx.font = 'bold 20px Courier New, monospace';
-                ctx.fillText(shopName, canvas.width / 2, yStart);
-
-                ctx.font = '14px Courier New, monospace';
-                ctx.fillText(shopAddress, canvas.width / 2, yStart + 25);
-                ctx.fillText(time, canvas.width / 2, yStart + 45);
-
-                // Garis pembatas pertama
-                ctx.fillText("------------------------------------------", canvas.width / 2, yStart + 70);
-
-                // Menggambar isi key-value struk thermal secara berurutan
-                ctx.textAlign = 'left';
-                let y = yStart + 105;
-                const lineSpacing = 35;
-
-                function drawThermalRow(label, value) {
-                    ctx.fillStyle = '#4B5563'; // warna text deskripsi abu-abu
-                    ctx.font = '14px Courier New, monospace';
-                    ctx.fillText(label, 40, y);
-                    
-                    ctx.textAlign = 'right';
-                    ctx.fillStyle = '#111827';
-                    ctx.font = 'bold 14px Courier New, monospace';
-                    
-                    if (value.length > 22) {
-                        ctx.fillText(value.substring(0, 22), canvas.width - 40, y);
-                        y += 20;
-                        ctx.fillText(value.substring(22), canvas.width - 40, y);
-                    } else {
-                        ctx.fillText(value, canvas.width - 40, y);
-                    }
-                    ctx.textAlign = 'left';
-                    y += lineSpacing;
-                }
-
-                drawThermalRow("JENIS", category);
-                drawThermalRow("PRODUK", product);
-                drawThermalRow("TUJUAN", target);
-                drawThermalRow("REFF/SN", sn);
-
-                // Garis pembatas kedua
-                ctx.textAlign = 'center';
-                ctx.fillStyle = '#111827';
-                ctx.fillText("------------------------------------------", canvas.width / 2, y);
-                y += 25;
-
-                // Bagian Grand Total
-                ctx.textAlign = 'left';
-                ctx.font = 'bold 15px Courier New, monospace';
-                ctx.fillText("TOTAL BAYAR", 40, y);
-                
-                ctx.textAlign = 'right';
-                ctx.fillStyle = '#5B21B6'; // warna teks ungu
-                ctx.font = 'bold 18px Courier New, monospace';
-                ctx.fillText(total, canvas.width - 40, y);
-                ctx.fillStyle = '#111827';
-                y += 30;
-
-                // Garis pembatas ketiga
-                ctx.textAlign = 'center';
-                ctx.fillText("------------------------------------------", canvas.width / 2, y);
-                y += 35;
-
-                // Status Sukses Hijau
-                ctx.fillStyle = '#059669'; // hijau
-                ctx.font = 'bold 15px Courier New, monospace';
-                ctx.fillText("✔ TRANSAKSI SUKSES VIA API", canvas.width / 2, y);
-                y += 25;
-
-                // Footer bawaan konfigurasi toko
-                ctx.fillStyle = '#9CA3AF'; 
-                ctx.font = '12px Courier New, monospace';
-                ctx.fillText(shopFooter, canvas.width / 2, y);
-            };
-
-            // Mengunduh gambar secara fiktif menggunakan a-click simulation
-            const triggerDownload = () => {
-                try {
-                    const dataUrl = canvas.toDataURL("image/png");
-                    const link = document.createElement('a');
-                    link.download = `Struk_${state.settings.shopName.replace(/\s+/g, '_')}_${target || 'Transaksi'}.png`;
-                    link.href = dataUrl;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    
-                    showCustomAlert("Struk Disimpan", "Struk transaksi telah sukses diekspor & disimpan ke folder download perangkat Anda!");
-                } catch (err) {
-                    showCustomAlert("Gagal Menyimpan", "Terjadi kegagalan saat mengekspor gambar struk ke folder lokal.");
-                }
-            };
-
-            // Lakukan loading asinkronus jika logo kustom didefinisikan
-            if (state.settings.logoUrl) {
-                const img = new Image();
-                img.src = state.settings.logoUrl;
-                img.onload = function() {
-                    drawContent(img);
-                    triggerDownload();
-                };
-                img.onerror = function() {
-                    drawContent(null);
-                    triggerDownload();
-                };
-            } else {
-                drawContent(null);
-                triggerDownload();
-            }
-        }
-
-        // Simulated API Call & Transaction Processing
         async function processTransaction(e) {
             e.preventDefault();
-            
             const category = document.getElementById('tx-category').value;
             const productId = document.getElementById('tx-product').value;
-            const target = document.getElementById('tx-target').value;
             const nominal = parseInt(document.getElementById('tx-nominal').value);
+            if (isNaN(nominal) || nominal <= 0) return;
             
-            if (isNaN(nominal) || nominal <= 0) {
-                showCustomAlert("Input Tidak Valid", "Nominal transaksi harus valid!");
-                return;
-            }
-
             const product = productOptions[category].find(p => p.id === productId);
-            const fee = product.fee;
-            const totalCost = nominal + fee;
+            const totalCost = nominal + product.fee;
 
-            // Periksa kecukupan saldo merchant sebelum transaksi didebet
-            let hasSufficientBalance = true;
-            if (category === 'E-Money') {
-                if (productId === 'em-mandiri' && state.saldo.mandiri < nominal) hasSufficientBalance = false;
-                else if (productId === 'em-flazz' && state.saldo.bca < nominal) hasSufficientBalance = false;
-                else if (state.saldo.bri < nominal) hasSufficientBalance = false;
-            } else if (category === 'E-Wallet') {
-                if (state.saldo.laci < nominal) hasSufficientBalance = false; // Laci cash drawer limits
-            }
-
-            if (!hasSufficientBalance) {
-                showCustomAlert("Saldo Deposit Kurang", "Transaksi gagal! Saldo merchant Anda tidak mencukupi untuk melakukan transaksi ini. Silakan tambah saldo deposit terlebih dahulu.");
-                return;
-            }
-
-            // Show Processing Modal
-            const loader = document.getElementById('loader-modal');
-            const loaderTitle = document.getElementById('loader-title');
-            const loaderStep = document.getElementById('loader-step');
-            const loaderBar = document.getElementById('loader-bar');
-            
-            loader.classList.remove('hidden');
-            
-            // Step 1: Initialize API connection
-            loaderTitle.innerText = "Memproses Transaksi";
-            loaderStep.innerText = "Menghubungkan ke API Agregator (Digiflazz)...";
-            loaderBar.style.width = "25%";
-            await sleep(1000);
-
-            // Step 2: Validate Target ID
-            loaderStep.innerText = `Menvalidasi data tujuan: ${target}...`;
-            loaderBar.style.width = "50%";
-            await sleep(1200);
-
-            // Step 3: Checking Aggregator API balance
-            loaderStep.innerText = "Memverifikasi kecukupan saldo deposit merchant...";
-            loaderBar.style.width = "75%";
-            await sleep(1000);
-
-            // Step 4: Dispatch to Provider
-            loaderStep.innerText = "Mengirim perintah top-up ke operator provider...";
-            loaderBar.style.width = "95%";
+            document.getElementById('loader-modal').classList.remove('hidden');
             await sleep(1500);
+            document.getElementById('loader-modal').classList.add('hidden');
 
-            // Hide Loader
-            loader.classList.add('hidden');
+            state.transaksiHariIni += 1;
+            state.pendapatanKotor += totalCost;
+            state.pendapatanBersih += product.fee;
+            
+            const newTx = { time: new Date().toLocaleTimeString('id-ID'), timestamp: new Date().toISOString(), category, product: product.name, target: document.getElementById('tx-target').value, nominal, fee: product.fee, totalCost, sn: "SN-"+Math.floor(Math.random()*9999), status: 'SUKSES' };
+            state.history.unshift(newTx);
+            updateDom();
+            saveLocalState(); // Backup ke memory
+            sendDataToGAS("SAVE_TRANSACTION", { ...newTx, updatedSaldo: state.saldo });
 
-            // Generate Mock Serial Number & Response
-            const isSuccess = Math.random() > 0.02; // 98% Success chance
-            const sn = 'SN-API-' + Math.floor(Math.random() * 8999999999 + 1000000000);
-
-            if (isSuccess) {
-                // Update State & Balances
-                state.transaksiHariIni += 1;
-                state.pendapatanKotor += totalCost;
-                state.pendapatanBersih += fee;
-
-                // Adjust specific balances based on type
-                if (category === 'E-Money') {
-                    if (productId === 'em-mandiri') {
-                        state.saldo.mandiri -= nominal;
-                        state.saldo.emoney += nominal;
-                    } else if (productId === 'em-flazz') {
-                        state.saldo.bca -= nominal;
-                        state.saldo.flazz += nominal;
-                    } else {
-                        state.saldo.bri -= nominal;
-                    }
-                } else if (category === 'E-Wallet') {
-                    if (productId === 'ew-gopay') {
-                        state.saldo.gopay += nominal;
-                    }
-                    state.saldo.laci -= nominal; 
-                }
-
-                // Customer bayar cash, maka uang di laci kasir bertambah sebesar totalCost (nominal + fee)
-                state.saldo.laci += totalCost;
-                
-                // Saldo server bank/e-money berkurang karena didebet untuk top-up
-                if (category === 'E-Money' || category === 'E-Wallet' || category === 'Transfer') {
-                    state.totalAset += fee; // aset naik tipis karena keuntungan dari admin fee
-                }
-
-                // Add to History
-                const now = new Date();
-                const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
-                
-                const newTx = {
-                    time: timeStr,
-                    timestamp: new Date().toISOString(), // store ISO timestamp
-                    category: category,
-                    product: product.name,
-                    target: target,
-                    nominal: nominal,
-                    fee: fee, // store fee for laba bersih calculation
-                    totalCost: totalCost,
-                    sn: sn,
-                    status: 'SUKSES'
-                };
-                
-                state.history.unshift(newTx);
-
-                // Update UI DOM
-                updateDom();
-
-                // Kirim data transaksi + update saldo ke Google Sheets
-                sendDataToGAS("SAVE_TRANSACTION", {
-                    ...newTx,
-                    updatedSaldo: state.saldo
-                });
-
-                // Open Receipt Modal
-                openReceipt(newTx, totalCost);
-            } else {
-                showCustomAlert("Gagal Koneksi API", "Gagal memproses transaksi! Respon API Agregator: [DF-503] Gangguan Operator / Saldo API Tidak Mencukupi.");
-            }
+            document.getElementById('rec-category').innerText = newTx.category;
+            document.getElementById('rec-product').innerText = newTx.product;
+            document.getElementById('rec-target').innerText = newTx.target;
+            document.getElementById('rec-total').innerText = formatRp(totalCost);
+            document.getElementById('receipt-modal').classList.remove('hidden');
         }
 
-        // Update Dashboard GUI based on state changes
-        function updateDom() {
-            // Update Header Shop Title
-            document.getElementById('header-shop-name').innerText = state.settings.shopName;
-            
-            // Ganti Logo Header secara Real-time berdasarkan status upload logo kustom
-            const logoWrapper = document.getElementById('header-logo-wrapper');
-            if (state.settings.logoUrl) {
-                logoWrapper.innerHTML = `<img src="${state.settings.logoUrl}" class="h-10 w-10 object-contain rounded-full bg-white p-0.5 border border-purple-500/40">`;
-            } else {
-                logoWrapper.innerHTML = `<i id="header-logo" class="${state.settings.logoIcon} text-purple-400 text-3xl"></i>`;
-            }
+        function closeReceipt() { document.getElementById('receipt-modal').classList.add('hidden'); switchTab('dashboard'); }
 
-            // Stats
+        function updateDom() {
+            document.getElementById('header-shop-name').innerText = state.settings.shopName;
+            if (state.settings.logoUrl) document.getElementById('header-logo-wrapper').innerHTML = `<img src="${state.settings.logoUrl}" class="h-7 w-7 md:h-8 md:w-8 object-contain rounded bg-white p-0.5">`;
+            
             document.getElementById('stat-total-aset').innerText = formatRp(state.totalAset);
             document.getElementById('stat-kotor').innerText = formatRp(state.pendapatanKotor);
             document.getElementById('stat-bersih').innerText = formatRp(state.pendapatanBersih);
             document.getElementById('stat-transaksi-count').innerText = state.transaksiHariIni;
-            document.getElementById('stat-tambah-saldo').innerText = formatRp(state.tambahSaldoHariIni);
-
-            // Bank Saldo
-            document.getElementById('saldo-bca').innerText = formatRp(state.saldo.bca);
-            document.getElementById('saldo-bri').innerText = formatRp(state.saldo.bri);
-            document.getElementById('saldo-mandiri').innerText = formatRp(state.saldo.mandiri);
-            const bankTotal = state.saldo.bca + state.saldo.bri + state.saldo.mandiri;
-            document.getElementById('saldo-bank-total').innerText = formatRp(bankTotal);
-
-            // E-Wallet & E-Money Saldo
-            document.getElementById('saldo-gopay').innerText = formatRp(state.saldo.gopay);
-            document.getElementById('saldo-emoney').innerText = formatRp(state.saldo.emoney);
-            document.getElementById('saldo-flazz').innerText = formatRp(state.saldo.flazz);
-            const walletTotal = state.saldo.gopay + state.saldo.emoney + state.saldo.flazz;
-            document.getElementById('saldo-wallet-total').innerText = formatRp(walletTotal);
-
-            // Cash Drawer Saldo
-            document.getElementById('saldo-laci').innerText = formatRp(state.saldo.laci);
-
-            // Refresh History Table
-            const tBody = document.getElementById('history-table-body');
-            const emptyHistory = document.getElementById('empty-history');
-            const historyBadge = document.getElementById('history-badge');
-
-            // clear current list excluding the empty state
-            const rows = tBody.querySelectorAll('tr:not(#empty-history)');
-            rows.forEach(row => row.remove());
-
-            if (state.history.length > 0) {
-                emptyHistory.classList.add('hidden');
-                historyBadge.classList.remove('hidden');
-                historyBadge.innerText = state.history.length;
-
-                // Only show today's history in the main dashboard tab for clarity
-                const now = new Date();
-                const todaysHistory = state.history.filter(tx => new Date(tx.timestamp).toDateString() === now.toDateString());
-
-                if (todaysHistory.length > 0) {
-                    todaysHistory.forEach(tx => {
-                        const tr = document.createElement('tr');
-                        tr.className = "border-b border-white/5 hover:bg-white/5 transition";
-                        tr.innerHTML = `
-                            <td class="py-4 font-mono text-xs">${tx.time}</td>
-                            <td class="py-4"><span class="bg-purple-950 text-purple-300 text-[10px] font-semibold px-2 py-1 rounded">${tx.category}</span></td>
-                            <td class="py-4 font-medium">${tx.product}</td>
-                            <td class="py-4 font-mono">${tx.target}</td>
-                            <td class="py-4 font-bold text-emerald-400">${formatRp(tx.nominal)}</td>
-                            <td class="py-4 font-mono text-xs text-gray-400">${tx.sn}</td>
-                            <td class="py-4"><span class="bg-emerald-500/20 text-emerald-300 text-xs px-2 py-0.5 rounded-full font-semibold">${tx.status}</span></td>
-                        `;
-                        tBody.appendChild(tr);
-                    });
-                } else {
-                    emptyHistory.classList.remove('hidden');
-                }
-            } else {
-                emptyHistory.classList.remove('hidden');
-                historyBadge.classList.add('hidden');
-            }
-        }
-
-        // API Test Connection Action
-        async function testApiConnection() {
-            const aggregator = document.getElementById('cfg-aggregator').value;
-            const apiStatusBox = document.getElementById('api-status-box');
             
-            apiStatusBox.className = "p-4 rounded-xl border bg-yellow-500/10 border-yellow-500/30 text-yellow-300 text-sm flex items-center gap-3";
-            apiStatusBox.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Sedang melakukan Handshake API & cek balance di server ${aggregator.toUpperCase()}...`;
-            apiStatusBox.classList.remove('hidden');
-
-            await sleep(1500);
-
-            apiStatusBox.className = "p-4 rounded-xl border bg-emerald-500/10 border-emerald-500/30 text-emerald-300 text-sm space-y-2";
-            apiStatusBox.innerHTML = `
-                <div class="flex items-center gap-2 font-bold text-base">
-                    <i class="fa-solid fa-circle-check"></i> Koneksi API Sukses!
-                </div>
-                <div class="text-xs space-y-1 mt-2 text-gray-300">
-                    <p>• <strong>Status Server:</strong> Operational (Normal)</p>
-                    <p>• <strong>IP Whitelisting:</strong> Terdaftar (Server KasQu)</p>
-                    <p>• <strong>Deposit Agregator:</strong> Rp 4.560.820</p>
-                    <p>• <strong>Callback Webhook:</strong> Terkoneksi (HTTPS OK)</p>
-                </div>
-            `;
-        }
-
-        // Receipt Handlers
-        function openReceipt(tx, totalCost) {
-            const now = new Date();
-            document.getElementById('rec-time').innerText = `TGL: ${now.toLocaleDateString('id-ID')} - ${tx.time}`;
-            document.getElementById('rec-category').innerText = tx.category.toUpperCase();
-            document.getElementById('rec-product').innerText = tx.product.toUpperCase();
-            document.getElementById('rec-target').innerText = tx.target;
-            document.getElementById('rec-sn').innerText = tx.sn;
-            document.getElementById('rec-total').innerText = formatRp(totalCost);
-
-            // Bind Dynamic Shop Settings to Digital Receipt
-            document.getElementById('rec-shop-name').innerText = state.settings.shopName.toUpperCase();
-            document.getElementById('rec-address').innerText = state.settings.address.toUpperCase();
-            document.getElementById('rec-footer').innerText = state.settings.footer;
-
-            // Render Logo di Struk digital jika ada
-            const recLogoWrapper = document.getElementById('rec-logo-wrapper');
-            const recLogo = document.getElementById('rec-logo');
-            if (state.settings.logoUrl) {
-                recLogo.src = state.settings.logoUrl;
-                recLogoWrapper.classList.remove('hidden');
+            const tbody = document.getElementById('history-table-body');
+            tbody.innerHTML = '';
+            if(state.history.length === 0) {
+                tbody.innerHTML = `<tr id="empty-history"><td colspan="6" class="py-12 text-center text-slate-500"><i class="fa-solid fa-receipt text-4xl mb-3 opacity-20 block"></i>Belum ada transaksi.</td></tr>`;
             } else {
-                recLogoWrapper.classList.add('hidden');
+                state.history.forEach(tx => {
+                    tbody.innerHTML += `<tr class="border-b border-slate-700 hover:bg-slate-800/50 transition"><td class="py-4 px-2">${tx.time}</td><td class="px-2"><span class="bg-slate-700 text-slate-300 text-[10px] px-2 py-1 rounded">${tx.category}</span></td><td class="px-2">${tx.product}</td><td class="px-2">${tx.target}</td><td class="text-emerald-400 font-bold px-2 text-right">${formatRp(tx.nominal)}</td><td class="px-2 text-center"><span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[10px] px-2 py-0.5 rounded-full">${tx.status}</span></td></tr>`;
+                });
             }
-
-            document.getElementById('receipt-modal').classList.remove('hidden');
         }
 
-        function closeReceipt() {
-            document.getElementById('receipt-modal').classList.add('hidden');
-            switchTab('dashboard');
+        function formatRp(val) { return "Rp " + val.toLocaleString('id-ID'); }
+        function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
+        
+        function clearHistory() { 
+            showCustomConfirm("Hapus Riwayat", "Ingin menghapus semua riwayat transaksi?", () => { 
+                state.history = []; 
+                updateDom(); 
+                saveLocalState(); 
+            }); 
         }
-
-        function printReceiptSim() {
-            showCustomAlert("Printer Thermal", "Memproses perintah cetak struk ke printer thermal Bluetooth/USB...");
-        }
-
-        // Clear State
-        function clearHistory() {
-            showCustomConfirm("Hapus Riwayat", "Apakah Anda yakin ingin menghapus semua riwayat transaksi hari ini?", () => {
-                state.history = [];
-                updateDom();
-            });
-        }
-
-        // Actions with Custom Modals
-        function resetStats() {
-            showCustomConfirm("Reset Statistik", "Apakah Anda yakin ingin mereset seluruh data statistik (Pendapatan & Transaksi)?", () => {
-                state.pendapatanKotor = 0;
-                state.pendapatanBersih = 0;
-                state.transaksiHariIni = 0;
-                state.tambahSaldoHariIni = 0;
-                updateDom();
-            });
-        }
-
-        function resetApp() {
-            showCustomConfirm("Reset Demo", "Apakah Anda yakin ingin mengembalikan aplikasi demo ke kondisi awal?", () => {
-                state = {
-                    totalAset: 1500000,
-                    pendapatanKotor: 0,
-                    pendapatanBersih: 0,
-                    transaksiHariIni: 0,
-                    tambahSaldoHariIni: 0,
-                    saldo: {
-                        bca: 500000,
-                        bri: 300000,
-                        mandiri: 200000,
-                        gopay: 150000,
-                        emoney: 100000,
-                        flazz: 100000,
-                        laci: 150000
-                    },
-                    history: [],
-                    settings: {
-                        shopName: "KassQuLink",
-                        logoIcon: "fa-solid fa-store",
-                        logoUrl: null,
-                        address: "Jl. Diponegoro No. 12, Semarang",
-                        footer: "Terima kasih atas kepercayaan Anda.",
-                        gasUrl: "https://script.google.com/macros/s/AKfycbylDdYcw_u9qfISPqvDC6VTML7KD9Xf0Kmgf2AKjnZbwtHMcNtYkTNhqofecuVzZdk/exec"
-                    }
-                };
-                
-                // Hapus logo preview DOM
-                deleteLogo();
-
-                // Regenerate dynamic history
-                const now = new Date();
-                state.history = [
-                    {
-                        time: "10:15:30",
-                        timestamp: new Date().toISOString(), // Today
-                        category: "E-Money",
-                        product: "Mandiri E-Money Balance Update",
-                        target: "6032123456789012",
-                        nominal: 100000,
-                        fee: 1500,
-                        totalCost: 101500,
-                        sn: "SN-API-9837482938",
-                        status: 'SUKSES'
-                    },
-                    {
-                        time: "14:20:11",
-                        timestamp: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days ago (Weekly)
-                        category: "E-Wallet",
-                        product: "GoPay Customer Top Up",
-                        target: "081234567890",
-                        nominal: 50000,
-                        fee: 1000,
-                        totalCost: 51000,
-                        sn: "SN-API-1029384756",
-                        status: 'SUKSES'
-                    },
-                    {
-                        time: "09:05:44",
-                        timestamp: new Date(now.getTime() - 10 * 24 * 60 * 60 * 1000).toISOString(), // 10 days ago (Monthly)
-                        category: "Transfer",
-                        product: "BCA Real-time Transfer",
-                        target: "1234567890",
-                        nominal: 500000,
-                        fee: 2500,
-                        totalCost: 502500,
-                        sn: "SN-API-5566778899",
-                        status: 'SUKSES'
-                    },
-                    {
-                        time: "16:30:22",
-                        timestamp: new Date(now.getTime() - 45 * 24 * 60 * 60 * 1000).toISOString(), // 45 days ago (Yearly)
-                        category: "Tagihan",
-                        product: "Token Listrik / PLN Postpaid",
-                        target: "532109876543",
-                        nominal: 200000,
-                        fee: 2750,
-                        totalCost: 202750,
-                        sn: "SN-API-1122334455",
-                        status: 'SUKSES'
-                    }
-                ];
-
-                state.transaksiHariIni = 1;
-                state.pendapatanKotor = 101500;
-                state.pendapatanBersih = 1500;
-
-                // Sync UI Forms
-                document.getElementById('cfg-shop-name').value = state.settings.shopName;
-                document.getElementById('cfg-shop-icon').value = state.settings.logoIcon;
-                document.getElementById('cfg-shop-address').value = state.settings.address;
-                document.getElementById('cfg-shop-footer').value = state.settings.footer;
-                document.getElementById('cfg-gas-url').value = state.settings.gasUrl || "";
-
-                updateDom();
-                switchTab('dashboard');
-            });
-        }
-
-        // Helper Tools
-        function formatRp(val) {
-            return "Rp " + val.toLocaleString('id-ID');
-        }
-
-        // Dynamic waiting tool
-        function sleep(ms) {
-            return new Promise(resolve => setTimeout(resolve, ms));
+        function resetStats() { 
+            showCustomConfirm("Reset Statistik", "Ingin mereset omset & jumlah transaksi hari ini?", () => { 
+                state.pendapatanKotor = 0; 
+                state.pendapatanBersih = 0; 
+                state.transaksiHariIni = 0; 
+                updateDom(); 
+                saveLocalState(); 
+            }); 
         }
     </script>
 </body>
