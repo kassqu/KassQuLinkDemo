@@ -6,6 +6,44 @@
     <title>KassQuLinkDemo</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+      <!-- SCRIPT PWA MANIFEST (KHUSUS ANDROID/CHROME) -->
+      <script>
+        (function() {
+          // Membuat KTP Aplikasi (Manifest) secara virtual
+          const manifestJSON = {
+            "name": "KassQu Kedai-DemoApp",
+            "short_name": "Kedai-DemoApp",
+            "start_url": window.location.href, 
+            "display": "standalone",
+            "background_color": "#f8fafc",
+            "theme_color": "#4f46e5",
+            "icons": [
+              {
+                "src": "https://raw.githubusercontent.com/kassqu/DemoApp1/refs/heads/main/logo.png",
+                "sizes": "192x192",
+                "type": "image/png",
+                "purpose": "any maskable"
+              },
+              {
+                "src": "https://raw.githubusercontent.com/kassqu/DemoApp1/refs/heads/main/logo.png",
+                "sizes": "512x512",
+                "type": "image/png",
+                "purpose": "any maskable"
+              }
+            ]
+          };
+          
+          // Mengubah JSON menjadi URL Data dan menempelkannya ke <head>
+          const manifestString = JSON.stringify(manifestJSON);
+          const manifestURL = 'data:application/manifest+json;charset=utf-8,' + encodeURIComponent(manifestString);
+          
+          const link = document.createElement('link');
+          link.rel = 'manifest';
+          link.href = manifestURL;
+          document.head.appendChild(link);
+        })();
+      </script>
     
     <!-- Excel & PDF Export Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
