@@ -205,9 +205,13 @@
                     </div>
                     <span id="saldo-laci" class="font-bold text-xl">Rp 150.000</span>
                 </div>
-                <div class="mt-8 flex justify-center items-center h-20 opacity-20">
-                    <i class="fa-solid fa-money-bill-wave text-6xl"></i>
-                </div>
+                    <button onclick="resetStats()" class="bg-red-800/80 hover:bg-red-700 py-3 rounded-xl flex items-center justify-center gap-2 text-sm font-medium transition">
+                            <i class="fa-solid fa-rotate"></i> Reset Statistik
+                    </button>
+                    <button onclick="openOwnerReport()" class="bg-blue-600/80 hover:bg-blue-500 py-3 rounded-xl flex items-center justify-center gap-2 text-sm font-medium transition">
+                            <i class="fa-solid fa-shield-halved"></i> Laporan Owner
+                    </button>
+                </div> 
             </div>
         </div>
 
@@ -247,31 +251,8 @@
                     </button>
                     <button onclick="quickAction('Tambah Saldo')" class="flex flex-col items-center gap-2 p-3 bg-white/5 hover:bg-white/10 rounded-xl text-emerald-400 border border-emerald-500/20 transition">
                         <i class="fa-solid fa-plus text-lg"></i>
-                        <span class="text-[11px] font-medium">Tambah Saldo</span>
+                        <span class="text-[11px] font-medium">Tambah Saldo Toko</span>
                     </button>
-                </div>
-            </div>
-
-            <!-- Danger Zone and Add Balance -->
-            <div class="space-y-6">
-                <div class="glass-card p-5">
-                    <h4 class="text-sm font-semibold mb-4">Mutasi Tambah Saldo Hari Ini</h4>
-                    <div class="flex items-center justify-between bg-white/10 p-4 rounded-xl border border-white/10">
-                        <i class="fa-solid fa-download text-emerald-400 text-xl"></i>
-                        <span id="stat-tambah-saldo" class="text-xl font-bold">Rp 0</span>
-                    </div>
-                </div>
-
-                <div class="glass-card p-5">
-                    <h4 class="text-sm font-semibold mb-4">Tindakan Sistem</h4>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <button onclick="resetStats()" class="bg-red-800/80 hover:bg-red-700 py-3 rounded-xl flex items-center justify-center gap-2 text-sm font-medium transition">
-                            <i class="fa-solid fa-rotate"></i> Reset Statistik
-                        </button>
-                        <button onclick="openOwnerReport()" class="bg-blue-600/80 hover:bg-blue-500 py-3 rounded-xl flex items-center justify-center gap-2 text-sm font-medium transition">
-                            <i class="fa-solid fa-shield-halved"></i> Laporan Owner
-                        </button>
-                    </div>
                 </div>
             </div>
         </div>
