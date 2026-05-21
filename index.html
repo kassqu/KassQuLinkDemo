@@ -46,7 +46,7 @@
             height: 120%;
             background: url('https://media.istockphoto.com/id/956431518/photo/aerial-view-of-clear-turquoise-sea.jpg?s=612x612&w=0&k=20&c=VYMqx5i_z8y1BxqSp-08RzIDauWMPuqvz6Vro3frAkI=') no-repeat center center;
             background-size: cover;
-            filter: blur(4px) brightness(0.85); /* Blur 4px, digelapkan ke 25% */
+            filter: blur(4px) brightness(0.50); /* Blur 4px, digelapkan ke 5-% */
             z-index: -1; /* Berada di belakang konten */
         }
 
@@ -179,7 +179,7 @@
             <div class="glass-card p-5 flex flex-col">
                 <div class="flex justify-between items-center mb-6">
                     <div class="flex items-center gap-2">
-                        <div class="p-2 bg-emerald-500/10 rounded-lg border border-emerald-500/20"><i class="fa-solid fa-mobile-screen text-emerald-400"></i></div>
+                        <div class="p-2 bg-emerald-500/10 rounded-lg border border-emerald-500/20"><i class="fa-solid fa-mobile-alt text-emerald-400 px-1"></i></div>
                         <span class="font-bold text-slate-200">Digital / E-Money</span>
                     </div>
                     <span id="saldo-wallet-total" class="font-bold text-blue-400">Rp 350.000</span>
@@ -216,7 +216,7 @@
 
                 <!-- Combined System Actions -->
                 <div class="mt-4 pt-4 border-t border-slate-700/50 grid grid-cols-2 gap-3">
-                    <button onclick="resetStats()" class="bg-slate-700/40 hover:bg-slate-700 border border-slate-600 text-slate-300 py-2.5 rounded-xl flex items-center justify-center gap-2 text-xs font-semibold transition">
+                    <button onclick="resetStats()" class="bg-rose-600/90 hover:bg-rose-500 text-white py-2.5 rounded-xl flex items-center justify-center gap-2 text-xs font-semibold transition shadow-lg shadow-rose-900/20">
                         <i class="fa-solid fa-rotate-left"></i> Reset Stat
                     </button>
                     <button onclick="openOwnerReport()" class="bg-blue-600/90 hover:bg-blue-500 text-white py-2.5 rounded-xl flex items-center justify-center gap-2 text-xs font-semibold transition shadow-lg shadow-blue-900/20">
@@ -392,10 +392,9 @@
                             <input type="text" id="cfg-username" value="kasqu_merchant_demo" class="w-full bg-slate-900/60 border border-slate-600 rounded-xl p-3.5 text-slate-100 focus:outline-none focus:border-blue-500">
                         </div>
 
-                        <div class="mt-6 border-t border-slate-700 pt-5">
-                            <label class="block text-sm text-emerald-400 mb-2 font-bold"><i class="fa-solid fa-file-excel"></i> URL Google Sheets (GAS)</label>
-                            <input type="text" id="cfg-gas-url" placeholder="https://script.google.com/macros/s/.../exec" class="w-full bg-slate-900/60 border border-emerald-500/30 rounded-xl p-3.5 text-slate-100 focus:outline-none focus:border-emerald-500 placeholder-slate-600">
-                            <p class="text-[10px] text-slate-400 mt-2 leading-relaxed">Masukkan Web App URL dari Google Apps Script untuk menjadikan Google Sheets sebagai database & laporan real-time.</p>
+                        <div>
+                            <label class="block text-sm text-slate-300 mb-2 font-medium">API Key (Production / Dev)</label>
+                            <input type="password" id="cfg-apikey" value="••••••••••••••••••••••••••••••••" class="w-full bg-slate-900/60 border border-slate-600 rounded-xl p-3.5 text-slate-100 focus:outline-none focus:border-blue-500">
                         </div>
                     </div>
                 </div>
@@ -622,7 +621,7 @@
                 logoUrl: null, 
                 address: "Jl. Diponegoro No. 12, Semarang",
                 footer: "Terima kasih atas kepercayaan Anda.",
-                gasUrl: "https://script.google.com/macros/s/AKfycbylDdYcw_u9qfISPqvDC6VTML7KD9Xf0Kmgf2AKjnZbwtHMcNtYkTNhqofecuVzZdk/exec"
+                apiKey: "••••••••••••••••••••••••••••••••"
             }
         };
 
@@ -665,7 +664,7 @@
             document.getElementById('cfg-shop-icon').value = state.settings.logoIcon;
             document.getElementById('cfg-shop-address').value = state.settings.address;
             document.getElementById('cfg-shop-footer').value = state.settings.footer;
-            document.getElementById('cfg-gas-url').value = state.settings.gasUrl || "";
+            document.getElementById('cfg-apikey').value = state.settings.apiKey || "••••••••••••••••••••••••••••••••";
             
             // Tampilkan logo jika sebelumnya sudah di-upload dan tersimpan di localStorage
             if(state.settings.logoUrl) {
@@ -791,7 +790,7 @@
             state.settings.logoIcon = document.getElementById('cfg-shop-icon').value;
             state.settings.address = document.getElementById('cfg-shop-address').value;
             state.settings.footer = document.getElementById('cfg-shop-footer').value;
-            state.settings.gasUrl = document.getElementById('cfg-gas-url').value;
+            state.settings.apiKey = document.getElementById('cfg-apikey').value;
             updateDom();
             saveLocalState(); // Simpan memori
             sendDataToGAS("SAVE_SETTINGS", state.settings);
@@ -799,10 +798,8 @@
         }
 
         function sendDataToGAS(action, data) {
-            const url = state.settings.gasUrl;
-            if (!url || !url.includes("script.google.com/macros/s/")) return;
-            fetch(url, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: action, data: data }) })
-            .catch(err => console.log("Gagal sinkronisasi", err));
+            // Fitur Google Sheets dinonaktifkan sesuai request
+            return;
         }
 
         function openOwnerReport() { activeReportFilter = 'hari-ini'; renderDetailedOwnerReport(); document.getElementById('detailed-owner-report-modal').classList.remove('hidden'); }
